@@ -13,7 +13,7 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    new SyncServer(10000, JSONPacketParser.class).start();
+                    new SyncServer(10000, JSONPacketParser.class, "abc").start();
                 } catch (IOException | InstantiationException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -21,7 +21,8 @@ public class Main {
         }).start();
 
         try {
-            new SyncClient("localhost", 10000, JSONPacketParser.class).connect();
+            new SyncClient("localhost", 10000, "client #1", "abc",
+                    JSONPacketParser.class).connect();
         } catch (IOException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }

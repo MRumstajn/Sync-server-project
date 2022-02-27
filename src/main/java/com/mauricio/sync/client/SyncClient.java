@@ -1,11 +1,9 @@
 package com.mauricio.sync.client;
 
-import com.mauricio.sync.packets.wrappers.DisconnectPacketWrapper;
+import com.mauricio.sync.packets.wrappers.AuthPacketWrapper;
 import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
-import com.mauricio.sync.packets.wrappers.PingPacketWrapper;
 import com.mauricio.sync.packets.IPacket;
 import com.mauricio.sync.packets.parsers.IPacketParser;
-import com.mauricio.sync.packets.JSONPacket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,13 +17,18 @@ public class SyncClient implements ISyncClient{
     private DataOutputStream out;
     private String ip;
     private int port;
+    private String username;
+    private String password;
     private IPacketParser packetParser;
 
     @SuppressWarnings({"deprecation", "ConstantConditions"})
-    public SyncClient(String ip, int port, Class<? extends IPacketParser> packetParserClass)
+    public SyncClient(String ip, int port, String username, String password,
+                      Class<? extends IPacketParser> packetParserClass)
             throws InstantiationException, IllegalAccessException {
         this.ip = ip;
         this.port = port;
+        this.username = username;
+        this.password = password;
         packetParser = packetParserClass.newInstance();
     }
 
@@ -34,25 +37,16 @@ public class SyncClient implements ISyncClient{
         clientSocket = new Socket(ip, port);
         in = new DataInputStream(clientSocket.getInputStream());
         out = new DataOutputStream(clientSocket.getOutputStream());
-        Scanner scanner = new Scanner(System.in);
         new Thread(new SyncClientMessageReceiver(this, clientSocket, packetParser)).start();
-        while (true){
-            System.out.println("What would you like to do?");
-            System.out.println("\ta.) ping");
-            System.out.println("\tb.) exit");
-            String option = scanner.nextLine();
-            if (option.equals("a")){
-                PingPacketWrapper pingPacket = (PingPacketWrapper)
-                        PacketWrapperFactory.createPacketWrapper("ping", JSONPacket.class);
-                pingPacket.setIsRequest(true);
-                sendPacket(pingPacket);
-            } else {
-                DisconnectPacketWrapper disconnectPacket = new DisconnectPacketWrapper(new JSONPacket());
-                sendPacket(disconnectPacket);
-                break;
-            }
-        }
-        disconnect();
+
+        // client authentication test
+        System.out.println("Authenticating...");
+        AuthPacketWrapper authPacket = (AuthPacketWrapper)
+                PacketWrapperFactory.createPacketWrapper("auth", packetParser.getPacketClass());
+        authPacket.setUsername(username);
+        authPacket.setPassword(password);
+        authPacket.setStatus(false);
+        sendPacket(authPacket);
     }
 
     @Override

@@ -13,6 +13,13 @@ public class PacketWrapperFactory {
                     break;
                 case "disconnect":
                     wrapper = new DisconnectPacketWrapper(packetClass.newInstance());
+                    break;
+                case "error":
+                    wrapper = new ErrorPacketWrapper(packetClass.newInstance());
+                    break;
+                case "auth":
+                    wrapper = new AuthPacketWrapper(packetClass.newInstance());
+                    break;
             }
         } catch (InstantiationException e) {
         } catch (IllegalAccessException e) {

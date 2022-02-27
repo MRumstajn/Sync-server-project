@@ -38,4 +38,20 @@ public class SyncClientDevice {
     public List<String> getFiles() {
         return files;
     }
+
+    public void setAuthenticated(boolean authenticated) {
+        isAuthenticated = authenticated;
+    }
+
+    public boolean isAuthenticated() {
+        return isAuthenticated;
+    }
+
+    public SyncClientDeviceHandler getHandler() {
+        return handler;
+    }
+
+    public int getId() {
+        return id;
+    }
 }

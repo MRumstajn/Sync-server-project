@@ -11,7 +11,7 @@ public class AuthPacketWrapper extends PacketWrapper {
 
     @Override
     public boolean validate() {
-        if (!containsKey("type") || !containsKey("username") || !containsKey("password")){
+        if (!containsKey("type") || !containsKey("username") || !containsKey("password") || !containsKey("status")){
             return false;
         }
         Object type = get("type");
@@ -29,6 +29,10 @@ public class AuthPacketWrapper extends PacketWrapper {
         if (!(password instanceof String)){
             return false;
         }
+        Object status = get("status");
+        if (!(status instanceof Boolean)){
+            return false;
+        }
         return true;
     }
 
@@ -38,5 +42,21 @@ public class AuthPacketWrapper extends PacketWrapper {
 
     public String getPassword(){
         return (String) get("password");
+    }
+
+    public void setUsername(String username){
+        put("username", username);
+    }
+
+    public void setPassword(String password){
+        put("password", password);
+    }
+
+    public void setStatus(boolean status){
+        put("status", status);
+    }
+
+    public boolean getStatus(){
+        return (boolean) get("status");
     }
 }
