@@ -1,5 +1,7 @@
 package com.mauricio.sync.server;
 
+import com.mauricio.sync.packets.parsers.IPacketParser;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,10 +12,14 @@ public class SyncServer implements ISyncServer{
     private ServerSocket serverSocket;
     private int port;
     private List<SyncClientDevice> clients;
+    private IPacketParser packetParser;
 
-    public SyncServer(int port){
+    @SuppressWarnings("deprecation")
+    public SyncServer(int port, Class<? extends IPacketParser> packetParserClass) throws InstantiationException,
+            IllegalAccessException {
         this.port = port;
         clients = new ArrayList<>();
+        this.packetParser = packetParserClass.newInstance();
     }
 
     @Override
@@ -22,7 +28,7 @@ public class SyncServer implements ISyncServer{
         while (!serverSocket.isClosed()){
             Socket client = serverSocket.accept();
             System.out.println("New connection from " + client.getRemoteSocketAddress());
-            SyncClientDeviceHandler handler = new SyncClientDeviceHandler(client);
+            SyncClientDeviceHandler handler = new SyncClientDeviceHandler(client, packetParser);
             new Thread(handler).start();
             SyncClientDevice device = new SyncClientDevice(0, client, handler);
             clients.add(device);

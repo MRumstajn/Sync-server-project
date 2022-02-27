@@ -1,5 +1,11 @@
 package com.mauricio.sync.server;
 
+import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
+import com.mauricio.sync.packets.wrappers.PingPacketWrapper;
+import com.mauricio.sync.packets.IPacket;
+import com.mauricio.sync.packets.JSONPacket;
+import com.mauricio.sync.packets.parsers.IPacketParser;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,9 +15,11 @@ public class SyncClientDeviceHandler implements Runnable{
     private Socket client;
     private DataInputStream in;
     private DataOutputStream out;
+    private IPacketParser packetParser;
 
-    public SyncClientDeviceHandler(Socket client){
+    public SyncClientDeviceHandler(Socket client, IPacketParser packetParser){
         this.client = client;
+        this.packetParser = packetParser;
     }
 
     @Override
@@ -20,17 +28,28 @@ public class SyncClientDeviceHandler implements Runnable{
             in = new DataInputStream(client.getInputStream());
             out = new DataOutputStream(client.getOutputStream());
             while (!client.isClosed()){
-                String msg = in.readUTF();
-                out.writeUTF(msg);
-                if (msg.equals("exit")){
-                    client.close();
+                String rawPacket = in.readUTF();
+                IPacket packet = packetParser.parse(rawPacket);
+                String type = (String) packet.get("type");
+                switch (type){
+                    case "ping":
+                        // reply
+                        PingPacketWrapper pingPacket = (PingPacketWrapper)
+                                PacketWrapperFactory.createPacketWrapper("ping", packetParser.getPacketClass());
+                        sendPacket(pingPacket);
+                        break;
+                    case "disconnect":
+                        client.close();
+                        break;
                 }
             }
             System.out.println("client " + client.getRemoteSocketAddress() + " disconnected");
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
 
-
+    private void sendPacket(IPacket packet) throws IOException {
+        out.writeUTF(packet.stringify());
     }
 }
