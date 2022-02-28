@@ -1,31 +1,42 @@
 package com.mauricio.sync.server;
 
 import com.mauricio.sync.packets.parsers.IPacketParser;
+import com.mauricio.sync.packets.parsers.PacketParserFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SyncServer implements ISyncServer{
     private ServerSocket serverSocket;
     private int port;
     private List<SyncClientDevice> clients;
+    private Map<SyncClientDevice, SyncClientDevice> relayRouteMap;
+    private String packetParserType;
     private IPacketParser packetParser;
     private String password;
     private boolean usePassword;
     private int deviceIDCounter = 0;
+    public static final int PACKET_PAYLOAD_SIZE = 1024;
 
     @SuppressWarnings("deprecation")
-    public SyncServer(int port, Class<? extends IPacketParser> packetParserClass, String password)
-            throws InstantiationException,
-            IllegalAccessException {
+    public SyncServer(int port, String packetParserType, String password) throws InvalidParameterException{
         this.port = port;
-        this.packetParser = packetParserClass.newInstance();
         this.password = password;
+        this.packetParserType = packetParserType;
+        packetParser = PacketParserFactory.createParser(packetParserType);
+        if (packetParser == null){
+            throw new InvalidParameterException("Invalid parser type " + packetParserType);
+        }
         usePassword = password.length() > 0;
         clients = new ArrayList<>();
+        //requestMap = new HashMap<>();
+        relayRouteMap = new HashMap<>();
     }
 
     @Override
@@ -38,6 +49,8 @@ public class SyncServer implements ISyncServer{
             SyncClientDevice device = new SyncClientDevice(deviceIDCounter, client, handler);
             clients.add(device);
             new Thread(handler).start();
+            // parser is not thread safe so every thread needs its own parser
+            packetParser = PacketParserFactory.createParser(packetParserType);
             deviceIDCounter += 1;
         }
     }
@@ -68,6 +81,18 @@ public class SyncServer implements ISyncServer{
     }
 
     @Override
+    public SyncClientDevice getFileHost(String path) {
+        for (SyncClientDevice device : clients) {
+            for (String filePath : device.getFiles()){
+               if (filePath.equals(path)){
+                   return device;
+               }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public SyncClientDevice getDeviceWithID(int id) {
         for (SyncClientDevice client : clients) {
             if (client.getId() == id){
@@ -95,6 +120,21 @@ public class SyncServer implements ISyncServer{
     @Override
     public void setDeviceAuth(int deviceID){
         getDeviceWithID(deviceID).setAuthenticated(true);
+    }
+
+    @Override
+    public void addRelayRoute(SyncClientDevice sender, SyncClientDevice receiver) {
+        relayRouteMap.put(sender, receiver);
+    }
+
+    @Override
+    public void removeRelayRoute(SyncClientDevice sender) {
+        relayRouteMap.remove(sender);
+    }
+
+    @Override
+    public SyncClientDevice getRelayRoute(SyncClientDevice sender) {
+        return relayRouteMap.get(sender);
     }
 
     public int getConnectedClientCount(){

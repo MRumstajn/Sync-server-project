@@ -20,6 +20,15 @@ public class PacketWrapperFactory {
                 case "auth":
                     wrapper = new AuthPacketWrapper(packetClass.newInstance());
                     break;
+                case "sync":
+                    wrapper = new SyncFilePacketWrapper(packetClass.newInstance());
+                    break;
+                case "sync_data":
+                    wrapper = new SyncDataPacketWrapper(packetClass.newInstance());
+                    break;
+                case "add_files":
+                    wrapper = new AddFilesPacketWrapper(packetClass.newInstance());
+                    break;
             }
         } catch (InstantiationException e) {
         } catch (IllegalAccessException e) {

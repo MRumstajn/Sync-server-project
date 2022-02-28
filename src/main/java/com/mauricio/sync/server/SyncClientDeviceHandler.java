@@ -1,9 +1,6 @@
 package com.mauricio.sync.server;
 
-import com.mauricio.sync.packets.wrappers.ErrorPacketWrapper;
-import com.mauricio.sync.packets.wrappers.AuthPacketWrapper;
-import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
-import com.mauricio.sync.packets.wrappers.PingPacketWrapper;
+import com.mauricio.sync.packets.wrappers.*;
 import com.mauricio.sync.packets.IPacket;
 import com.mauricio.sync.packets.parsers.IPacketParser;
 
@@ -11,6 +8,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Base64;
+import java.util.List;
 
 public class SyncClientDeviceHandler implements Runnable{
     private ISyncServer server;
@@ -54,6 +53,42 @@ public class SyncClientDeviceHandler implements Runnable{
                             sendPacket(createErrorPacket("Invalid auth packet"));
                         }
                         break;
+                    case "sync":
+                        // client requesting file
+                        SyncFilePacketWrapper requestPacket = new SyncFilePacketWrapper(packet);
+                        if (requestPacket.validate()){
+                            SyncClientDevice fileHost = server.getFileHost(requestPacket.getPath());
+                            if (fileHost != null) {
+                                // relay request to the client with the file
+                                server.addRelayRoute(fileHost, server.getDeviceWithID(deviceID));
+                                fileHost.getHandler().sendPacket(requestPacket);
+                            } else {
+                                sendPacket(createErrorPacket("Requested file is not registered on the server"));
+                            }
+                        } else {
+                            sendPacket(createErrorPacket("Invalid sync packet"));
+                        }
+                        break;
+                    case "sync_data":
+                        // client sending piece of file
+                        SyncDataPacketWrapper dataPacket = new SyncDataPacketWrapper(packet);
+                        if (dataPacket.validate()){
+                            relayDataPacket(dataPacket);
+                            if (dataPacket.getData().equals("eof")){
+                                server.removeRelayRoute(server.getDeviceWithID(deviceID));
+                            }
+                        } else {
+                            sendPacket(createErrorPacket("Invalid data packet"));
+                        }
+                        break;
+                    case "add_files":
+                        AddFilesPacketWrapper addFilesPacket = new AddFilesPacketWrapper(packet);
+                        List<String> files = addFilesPacket.getFiles();
+                        SyncClientDevice device = server.getDeviceWithID(deviceID);
+                        for (String path : files){
+                            device.addFile(path);
+                        }
+                        break;
                 }
             }
             System.out.println("client " + client.getRemoteSocketAddress() + " disconnected");
@@ -91,5 +126,28 @@ public class SyncClientDeviceHandler implements Runnable{
             authResponsePacket.setStatus(false);
         }
         sendPacket(authResponsePacket);
+    }
+
+    private void relayDataPacket(SyncDataPacketWrapper dataPacket) throws IOException {
+        String base64 = dataPacket.getData();
+        byte[] received = Base64.getDecoder().decode(base64);
+        // packet payload sizes must match on the server and the client for correct file transport
+        boolean ok = true;
+        if (received.length > SyncServer.PACKET_PAYLOAD_SIZE){
+            sendPacket(createErrorPacket("Data packet payload is too large, must be <= "
+                    + SyncServer.PACKET_PAYLOAD_SIZE + " bytes"));
+            ok = false;
+        }
+        // send to the client that requested the file
+        SyncClientDevice requester = server.getRelayRoute(server.getDeviceWithID(deviceID));
+        if (requester == null){
+            return;
+        }
+        if (ok) {
+            requester.getHandler().sendPacket(dataPacket);
+        } else {
+            requester.getHandler().sendPacket(createErrorPacket("Client containing the requested file"
+                    + " has sent a packet that is too large"));
+        }
     }
 }

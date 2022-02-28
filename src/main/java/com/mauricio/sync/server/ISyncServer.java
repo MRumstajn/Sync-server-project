@@ -10,6 +10,10 @@ public interface ISyncServer {
     boolean usesPassword();
     boolean isPasswordValid(String password);
     List<SyncClientDevice> getClients();
+    SyncClientDevice getFileHost(String path);
     SyncClientDevice getDeviceWithID(int id);
     void setDeviceAuth(int deviceID);
+    void addRelayRoute(SyncClientDevice sender, SyncClientDevice receiver);
+    void removeRelayRoute(SyncClientDevice sender);
+    SyncClientDevice getRelayRoute(SyncClientDevice sender);
 }
