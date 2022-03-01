@@ -132,7 +132,7 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
 
     @Override
     public void sendDir(String path) throws IOException {
-        List<String> filePaths = fileObserver.deepListFiles(fileObserver.getObservedDir(),
+        List<String> filePaths = fileObserver.deepListFiles(fileObserver.getFile(path),
                 new ArrayList<>(), "", false);
         for (int i = 0; i < filePaths.size(); i++) {
             if (i < filePaths.size() - 1) {
@@ -249,21 +249,6 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
 
     @Override
     public void unregisterRemovedFiles() throws IOException {
-        /*RemoveFilesPacketWrapper removeFilesPacket = (RemoveFilesPacketWrapper)
-                PacketWrapperFactory.createPacketWrapper("remove_files", packetParser.getPacketClass());
-        Map<String, Boolean> syncStatusMap = fileObserver.getSyncStatusMap();
-        for (File file : fileObserver.getFiles()) {
-            if (syncStatusMap.containsKey(file.getName())){
-                System.out.println("skip-------------------");
-                continue;
-            }
-            System.out.println("Removing file " + file.getName() + "...");
-            String relativePath = fileObserver.relativePathTo(file);
-            removeFilesPacket.addFile(relativePath, file.isDirectory());
-        }
-        sendPacket(removeFilesPacket);*/
-
-
         RemoveFilesPacketWrapper removeFilesPacket = (RemoveFilesPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("remove_files", packetParser.getPacketClass());
         Map<String, Boolean> removeCache = fileObserver.getRemoveCache();
