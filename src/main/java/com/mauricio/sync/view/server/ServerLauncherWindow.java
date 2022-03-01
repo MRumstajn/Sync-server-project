@@ -73,6 +73,9 @@ public class ServerLauncherWindow extends Stage {
                     showErrorDialog("Password is required");
                     return;
                 }
+                if (!usePassword){
+                    password = "";
+                }
                 listener.onStart(port, usePassword, password);
             }
         });
@@ -82,6 +85,7 @@ public class ServerLauncherWindow extends Stage {
 
         Scene scene = new Scene(root);
         setScene(scene);
+        setResizable(false);
         show();
     }
 
