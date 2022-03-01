@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SyncFileObserver implements ISyncFileObserver, Runnable{
@@ -88,10 +89,32 @@ public class SyncFileObserver implements ISyncFileObserver, Runnable{
         String fullPath = getFullPath(path);
         File file = new File(fullPath);
         if (!file.exists()){
+            file.getParentFile().mkdirs();
             file.createNewFile();
         }
         FileOutputStream out = new FileOutputStream(file);
         out.write(buff);
         out.close();
+    }
+
+    public String relativePathTo(File file) {
+        String relativePath = observedDir.toPath().relativize(file.toPath()).toString();
+        return relativePath;
+    }
+
+    public List<String> deepListFiles(File dir, List<String> paths, String filter){
+        for (File file : dir.listFiles()){
+            if (file.isFile()){
+                if (filter.length() > 0 && !file.getName().equals(filter)){
+                    continue;
+                }
+                String relativePath = relativePathTo(file);
+                paths.add(relativePath);
+            }
+            if (file.isDirectory()){
+                deepListFiles(file, paths, filter);
+            }
+        }
+        return paths;
     }
 }

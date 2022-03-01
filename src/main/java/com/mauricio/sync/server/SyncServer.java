@@ -35,7 +35,6 @@ public class SyncServer implements ISyncServer{
         }
         usePassword = password.length() > 0;
         clients = new ArrayList<>();
-        //requestMap = new HashMap<>();
         relayRouteMap = new HashMap<>();
     }
 
@@ -83,7 +82,7 @@ public class SyncServer implements ISyncServer{
     @Override
     public SyncClientDevice getFileHost(String path) {
         for (SyncClientDevice device : clients) {
-            for (String filePath : device.getFiles()){
+            for (String filePath : device.getFiles().keySet()){
                if (filePath.equals(path)){
                    return device;
                }

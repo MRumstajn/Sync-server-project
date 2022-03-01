@@ -13,7 +13,7 @@ import java.security.InvalidParameterException;
 public class Main {
 
     public static void main(String[] args) {
-        new Thread(new Runnable() {
+       new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -33,8 +33,9 @@ public class Main {
                             "json_packet_parser");
                     client.setObservedDir(new File("C:/Users/mauri/Desktop/files"));
                     client.connect();
+
                     // testing file relaying system
-                    SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
+                    /*SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
                             PacketWrapperFactory.createPacketWrapper("sync", JSONPacket.class);
                     testPacket.setPath("data_v2.txt");
                     testPacket.setIsDir(false);
@@ -44,7 +45,7 @@ public class Main {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    client.sendPacket(testPacket);
+                    client.sendPacket(testPacket);*/
                     //
 
                 } catch (IOException | InvalidParameterException e) {
@@ -62,11 +63,12 @@ public class Main {
                             "json_packet_parser");
                     client.setObservedDir(new File("C:/Users/mauri/Desktop/files2"));
                     client.connect();
+
                     // testing file relaying system
                     SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
                             PacketWrapperFactory.createPacketWrapper("sync", JSONPacket.class);
-                    testPacket.setPath("data.txt");
-                    testPacket.setIsDir(false);
+                    testPacket.setPath("New folder");
+                    testPacket.setIsDir(true);
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
@@ -79,4 +81,5 @@ public class Main {
             }
         }).start();
     }
+
 }

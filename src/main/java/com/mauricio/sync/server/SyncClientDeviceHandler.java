@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 public class SyncClientDeviceHandler implements Runnable{
     private ISyncServer server;
@@ -83,10 +84,10 @@ public class SyncClientDeviceHandler implements Runnable{
                         break;
                     case "add_files":
                         AddFilesPacketWrapper addFilesPacket = new AddFilesPacketWrapper(packet);
-                        List<String> files = addFilesPacket.getFiles();
+                        List<Map<String, Object>> fileObjList = addFilesPacket.getFiles();
                         SyncClientDevice device = server.getDeviceWithID(deviceID);
-                        for (String path : files){
-                            device.addFile(path);
+                        for (Map<String, Object> obj : fileObjList){
+                            device.addFile((String) obj.get("path"), (Boolean) obj.get("is_dir"));
                         }
                         break;
                 }

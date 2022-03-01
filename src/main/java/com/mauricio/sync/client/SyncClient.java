@@ -33,7 +33,7 @@ public class SyncClient implements ISyncClient {
         this.username = username;
         this.password = password;
         packetParser = PacketParserFactory.createParser(packetParserType);
-        if (packetParser == null){
+        if (packetParser == null) {
             throw new InvalidParameterException("Invalid packet parser type " + packetParserType);
         }
         fileObserver = new SyncFileObserver();
@@ -68,44 +68,52 @@ public class SyncClient implements ISyncClient {
     }
 
     @Override
-    public void sendFile(String path) throws IOException {
+    public void sendFile(String path, boolean sendEof) throws IOException {
+        System.out.println("Sending file " + path + "...");
         File file = fileObserver.getFile(path);
         FileInputStream in = new FileInputStream(file);
         long fileSize = Files.size(file.toPath());
         int packetsRequired = (int) (fileSize / PACKET_PAYLOAD_SIZE);
-        if (packetsRequired == 0){
+        if (packetsRequired == 0) {
             packetsRequired = 1;
         }
         for (int i = 0; i < packetsRequired; i++) {
             byte[] buff = new byte[PACKET_PAYLOAD_SIZE];
-            if (in.read(buff) > 0) {
-                SyncDataPacketWrapper dataPacket = (SyncDataPacketWrapper)
-                        PacketWrapperFactory.createPacketWrapper("sync_data", packetParser.getPacketClass());
-                dataPacket.setPath(path);
-                dataPacket.setData(Base64.getEncoder().encodeToString(buff));
-                sendPacket(dataPacket);
-            } else {
-                break;
-            }
+            in.read(buff);
+            SyncDataPacketWrapper dataPacket = (SyncDataPacketWrapper)
+                    PacketWrapperFactory.createPacketWrapper("sync_data", packetParser.getPacketClass());
+            dataPacket.setPath(path);
+            dataPacket.setData(Base64.getEncoder().encodeToString(buff));
+            sendPacket(dataPacket);
             // give the server some time to process the previous packet
             try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
             }
         }
-        SyncDataPacketWrapper dataEndPacket = (SyncDataPacketWrapper)
-                PacketWrapperFactory.createPacketWrapper("sync_data", packetParser.getPacketClass());
-        dataEndPacket.setPath(path);
-        dataEndPacket.setData("eof");
-        sendPacket(dataEndPacket);
+
+
+        // when eof is omitted, the client can receive multiple files
+        if (sendEof) {
+            SyncDataPacketWrapper dataEndPacket = (SyncDataPacketWrapper)
+                    PacketWrapperFactory.createPacketWrapper("sync_data", packetParser.getPacketClass());
+            dataEndPacket.setPath(path);
+            dataEndPacket.setData("eof");
+            sendPacket(dataEndPacket);
+        }
         in.close();
-
-
     }
 
     @Override
-    public void sendDir(String path) throws IOException{
-
+    public void sendDir(String path) throws IOException {
+        List<String> filePaths = fileObserver.deepListFiles(fileObserver.getObservedDir(), new ArrayList<>(), "");
+        for (int i = 0; i < filePaths.size(); i++) {
+            if (i < filePaths.size() - 1) {
+                sendFile(filePaths.get(i), false);
+            } else {
+                sendFile(filePaths.get(i), true);
+            }
+        }
     }
 
     @Override
@@ -154,11 +162,10 @@ public class SyncClient implements ISyncClient {
     public void registerFiles() throws IOException {
         AddFilesPacketWrapper addFilesPacket = (AddFilesPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("add_files", packetParser.getPacketClass());
-        List<String> files = new ArrayList<>();
-        for (File file : fileObserver.getFiles()){
-            files.add(file.getName());
+        for (File file : fileObserver.getFiles()) {
+            String relativePath = fileObserver.relativePathTo(file);
+            addFilesPacket.addFile(relativePath, file.isDirectory());
         }
-        addFilesPacket.setFiles(files);
         sendPacket(addFilesPacket);
     }
 }

@@ -56,19 +56,17 @@ public class SyncClientMessageReceiver implements Runnable{
                         SyncFilePacketWrapper syncPacket = new SyncFilePacketWrapper(packet);
                         if (syncPacket.isDir()){
                             if (client.doesDirExist(syncPacket.getPath())){
-                                System.out.println("sending dir...");
                                 client.sendDir(syncPacket.getPath());
                             }
                         } else {
                             if (client.doesFileExist(syncPacket.getPath())){
-                                System.out.println("sending file...");
-                                client.sendFile(syncPacket.getPath());
+                                client.sendFile(syncPacket.getPath(), true);
                             }
                         }
                         break;
                     case "sync_data":
                         SyncDataPacketWrapper dataPacket = new SyncDataPacketWrapper(packet);
-                        if (!dataPacket.getData().equals("eof")){
+                        if (!dataPacket.getData().equals("eof")) {
                             byte[] buff = Base64.getDecoder().decode(dataPacket.getData());
                             client.writeBuffer(buff, dataPacket.getPath());
                         }

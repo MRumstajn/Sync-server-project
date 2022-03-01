@@ -2,13 +2,15 @@ package com.mauricio.sync.server;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SyncClientDevice {
     private String name;
     private int id;
     private boolean isAuthenticated;
-    private List<String> files;
+    private Map<String, Boolean> files;
     private Socket clientSocket;
     private SyncClientDeviceHandler handler;
 
@@ -16,7 +18,7 @@ public class SyncClientDevice {
         this.id = id;
         this.clientSocket = clientSocket;
         this.handler = handler;
-        files = new ArrayList<>();
+        files = new HashMap<>();
     }
 
     public void setName(String name) {
@@ -27,15 +29,15 @@ public class SyncClientDevice {
         return name;
     }
 
-    public void addFile(String file){
-        files.add(file);
+    public void addFile(String file, boolean isDir){
+        files.put(file, isDir);
     }
 
     public void removeFile(String file){
         files.remove(file);
     }
 
-    public List<String> getFiles() {
+    public Map<String, Boolean> getFiles() {
         return files;
     }
 

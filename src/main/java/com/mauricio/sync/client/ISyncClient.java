@@ -9,7 +9,7 @@ public interface ISyncClient {
     void connect() throws IOException;
     void disconnect() throws IOException;
     void sendPacket(IPacket packet) throws IOException;
-    void sendFile(String path) throws IOException;
+    void sendFile(String path, boolean sendEof) throws IOException;
     void sendDir(String path) throws IOException;
     String getServerIP();
     int getServerPort();
