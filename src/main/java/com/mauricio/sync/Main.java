@@ -1,15 +1,14 @@
 package com.mauricio.sync;
 
-import com.mauricio.sync.client.ISyncClientListener;
-import com.mauricio.sync.client.SyncClient;
-import com.mauricio.sync.packets.JSONPacket;
-import com.mauricio.sync.packets.wrappers.ListFilesPacketWrapper;
-import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
-import com.mauricio.sync.packets.wrappers.SyncFilePacketWrapper;
-import com.mauricio.sync.server.ISyncServerListener;
-import com.mauricio.sync.server.SyncClientDevice;
-import com.mauricio.sync.server.SyncServer;
-import com.sun.security.auth.module.JndiLoginModule;
+import com.mauricio.sync.model.client.ISyncClientListener;
+import com.mauricio.sync.model.client.SyncClient;
+import com.mauricio.sync.model.packets.JSONPacket;
+import com.mauricio.sync.model.packets.wrappers.ListFilesPacketWrapper;
+import com.mauricio.sync.model.packets.wrappers.PacketWrapperFactory;
+import com.mauricio.sync.model.packets.wrappers.SyncFilePacketWrapper;
+import com.mauricio.sync.model.server.ISyncServerListener;
+import com.mauricio.sync.model.server.SyncClientDevice;
+import com.mauricio.sync.model.server.SyncServer;
 
 import java.io.File;
 import java.io.IOException;
