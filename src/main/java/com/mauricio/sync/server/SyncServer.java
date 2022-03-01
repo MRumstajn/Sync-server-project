@@ -1,5 +1,6 @@
 package com.mauricio.sync.server;
 
+import com.mauricio.sync.events.EventEmitter;
 import com.mauricio.sync.packets.parsers.IPacketParser;
 import com.mauricio.sync.packets.parsers.PacketParserFactory;
 
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SyncServer implements ISyncServer{
+public class SyncServer extends EventEmitter<ISyncServerListener> implements ISyncServer{
     private ServerSocket serverSocket;
     private int port;
     private List<SyncClientDevice> clients;
@@ -41,22 +42,31 @@ public class SyncServer implements ISyncServer{
     @Override
     public void start() throws IOException {
         serverSocket = new ServerSocket(port);
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onServerStart();
+        }
         while (!serverSocket.isClosed()){
             Socket client = serverSocket.accept();
             System.out.println("New connection from " + client.getRemoteSocketAddress());
             SyncClientDeviceHandler handler = new SyncClientDeviceHandler(this, client, packetParser, deviceIDCounter);
             SyncClientDevice device = new SyncClientDevice(deviceIDCounter, client, handler);
-            clients.add(device);
+            addDevice(device);
             new Thread(handler).start();
             // parser is not thread safe so every thread needs its own parser
             packetParser = PacketParserFactory.createParser(packetParserType);
             deviceIDCounter += 1;
+            for (ISyncServerListener listener : getListeners()) {
+                listener.onClientConnect(device);
+            }
         }
     }
 
     @Override
     public void stop() throws IOException{
         serverSocket.close();
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onServerStop();
+        }
     }
 
     @Override
@@ -101,24 +111,69 @@ public class SyncServer implements ISyncServer{
         return null;
     }
 
+    @Override
     public void addDevice(SyncClientDevice device){
         clients.add(device);
-    }
-
-    public void removeDevice(SyncClientDevice device){
-        clients.remove(device);
-    }
-
-    public void setDeviceName(int deviceID, String name){
-        if (isNameUsed(name)) {
-            name += "(" + deviceID + ")";
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onClientConnect(device);
         }
-        getDeviceWithID(deviceID).setName(name);
     }
 
     @Override
-    public void setDeviceAuth(int deviceID){
-        getDeviceWithID(deviceID).setAuthenticated(true);
+    public void removeDevice(SyncClientDevice device){
+        clients.remove(device);
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onClientDisconnect(device);
+        }
+    }
+
+    @Override
+    public void setDeviceName(SyncClientDevice device, String name){
+        if (isNameUsed(name)) {
+            name += "(" + device.getId() + ")";
+        }
+        device.setName(name);
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onClientSetName(device);
+        }
+    }
+
+    @Override
+    public void setDeviceAuth(SyncClientDevice device){
+        device.setAuthenticated(true);
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onClientAuthenticated(device);
+        }
+    }
+
+    @Override
+    public void addFile(SyncClientDevice device, String path, boolean isDir) {
+        device.addFile(path, isDir);
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onAddFile(device, path, isDir);
+        }
+    }
+
+    @Override
+    public void removeFile(SyncClientDevice device, String path, boolean isDir) {
+        device.removeFile(path);
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onRemoveFile(device, path, isDir);
+        }
+    }
+
+    @Override
+    public void syncStarted(String file, SyncClientDevice cl1, SyncClientDevice cl2) {
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onSyncStart(file, cl1, cl2);
+        }
+    }
+
+    @Override
+    public void syncCompleted(String file, SyncClientDevice cl1, SyncClientDevice cl2) {
+        for (ISyncServerListener listener : getListeners()) {
+            listener.onSyncCompleted(file, cl1, cl2);
+        }
     }
 
     @Override
@@ -142,6 +197,9 @@ public class SyncServer implements ISyncServer{
 
     private boolean isNameUsed(String username){
         for (SyncClientDevice client : clients) {
+            if (!client.isAuthenticated()){
+                continue;
+            }
             if (client.getName().equals(username)){
                 return true;
             }

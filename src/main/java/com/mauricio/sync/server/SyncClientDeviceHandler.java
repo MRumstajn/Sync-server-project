@@ -1,5 +1,6 @@
 package com.mauricio.sync.server;
 
+import com.mauricio.sync.events.EventEmitter;
 import com.mauricio.sync.packets.wrappers.*;
 import com.mauricio.sync.packets.IPacket;
 import com.mauricio.sync.packets.parsers.IPacketParser;
@@ -33,7 +34,12 @@ public class SyncClientDeviceHandler implements Runnable{
             in = new DataInputStream(client.getInputStream());
             out = new DataOutputStream(client.getOutputStream());
             while (!client.isClosed()){
-                String rawPacket = in.readUTF();
+                String rawPacket;
+                try {
+                    rawPacket = in.readUTF();
+                } catch (IOException e){
+                    break;
+                }
                 IPacket packet = packetParser.parse(rawPacket);
                 String type = (String) packet.get("type");
                 switch (type){
@@ -63,6 +69,7 @@ public class SyncClientDeviceHandler implements Runnable{
                                 // relay request to the client with the file
                                 server.addRelayRoute(fileHost, server.getDeviceWithID(deviceID));
                                 fileHost.getHandler().sendPacket(requestPacket);
+                                server.syncStarted(requestPacket.getPath(), fileHost, server.getDeviceWithID(deviceID));
                             } else {
                                 sendPacket(createErrorPacket("Requested file is not registered on the server"));
                             }
@@ -76,7 +83,9 @@ public class SyncClientDeviceHandler implements Runnable{
                         if (dataPacket.validate()){
                             relayDataPacket(dataPacket);
                             if (dataPacket.getData().equals("eof")){
-                                server.removeRelayRoute(server.getDeviceWithID(deviceID));
+                                SyncClientDevice device = server.getDeviceWithID(deviceID);
+                                server.syncCompleted(dataPacket.getPath(), device, server.getRelayRoute(device));
+                                server.removeRelayRoute(device);
                             }
                         } else {
                             sendPacket(createErrorPacket("Invalid data packet"));
@@ -87,12 +96,13 @@ public class SyncClientDeviceHandler implements Runnable{
                         List<Map<String, Object>> fileObjList = addFilesPacket.getFiles();
                         SyncClientDevice device = server.getDeviceWithID(deviceID);
                         for (Map<String, Object> obj : fileObjList){
-                            device.addFile((String) obj.get("path"), (Boolean) obj.get("is_dir"));
+                            //device.addFile((String) obj.get("path"), (Boolean) obj.get("is_dir"));
+                            server.addFile(device, (String) obj.get("path"), (Boolean) obj.get("is_dir"));
                         }
                         break;
                 }
             }
-            System.out.println("client " + client.getRemoteSocketAddress() + " disconnected");
+            server.removeDevice(server.getDeviceWithID(deviceID));
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -121,8 +131,8 @@ public class SyncClientDeviceHandler implements Runnable{
         if (server.isPasswordValid(password)){
             authResponsePacket.setStatus(true);
             SyncClientDevice device = server.getDeviceWithID(deviceID);
-            device.setName(username);
-            server.setDeviceAuth(deviceID);
+            server.setDeviceName(device, username);
+            server.setDeviceAuth(device);
         } else {
             authResponsePacket.setStatus(false);
         }

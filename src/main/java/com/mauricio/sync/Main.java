@@ -4,6 +4,8 @@ import com.mauricio.sync.client.SyncClient;
 import com.mauricio.sync.packets.JSONPacket;
 import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
 import com.mauricio.sync.packets.wrappers.SyncFilePacketWrapper;
+import com.mauricio.sync.server.ISyncServerListener;
+import com.mauricio.sync.server.SyncClientDevice;
 import com.mauricio.sync.server.SyncServer;
 
 import java.io.File;
@@ -17,7 +19,64 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    new SyncServer(10000,"json_packet_parser", "").start();
+                    SyncServer server = new SyncServer(10000,"json_packet_parser", "");
+                    server.addListener(new ISyncServerListener() {
+                        @Override
+                        public void onServerStart() {
+                            System.out.println("Server started");
+                        }
+
+                        @Override
+                        public void onServerStop() {
+                            System.out.println("Server stopped");
+                        }
+
+                        @Override
+                        public void onClientConnect(SyncClientDevice client) {
+                            System.out.println("New connection");
+                        }
+
+                        @Override
+                        public void onClientDisconnect(SyncClientDevice client) {
+                            System.out.println("Client #" + client.getId() + " disconnected");
+                        }
+
+                        @Override
+                        public void onClientAuthenticated(SyncClientDevice client) {
+                            System.out.println("Client #" + client.getId() + " authenticated with username "
+                                    + client.getName());
+                        }
+
+                        @Override
+                        public void onClientSetName(SyncClientDevice client) {
+                            System.out.println("Client #" + client.getId() + " is named " + client.getName());
+                        }
+
+                        @Override
+                        public void onAddFile(SyncClientDevice client, String filename, boolean isDir) {
+                            System.out.println("client " + client.getName() + " added file " + filename);
+                            System.out.println("\tfolder: " + isDir);
+                        }
+
+                        @Override
+                        public void onRemoveFile(SyncClientDevice client, String filename, boolean isDir) {
+                            System.out.println("client " + client.getName() + " removed file " + filename);
+                            System.out.println("\tfolder: " + isDir);
+                        }
+
+                        @Override
+                        public void onSyncStart(String file, SyncClientDevice cl1, SyncClientDevice cl2) {
+                            System.out.println("relaying file " + file + " from client " + cl1.getName()
+                                    + " to client " + cl2.getName() );
+                        }
+
+                        @Override
+                        public void onSyncCompleted(String file, SyncClientDevice cl1, SyncClientDevice cl2) {
+                            System.out.println("finished relaying file " + file + " from client " + cl1.getName()
+                                    + " to client " + cl2.getName() );
+                        }
+                    });
+                    server.start();
                 } catch (IOException | InvalidParameterException e) {
                     e.printStackTrace();
                 }
@@ -33,7 +92,6 @@ public class Main {
                             "json_packet_parser");
                     client.setObservedDir(new File("C:/Users/mauri/Desktop/files"));
                     client.connect();
-
                     // testing file relaying system
                     /*SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
                             PacketWrapperFactory.createPacketWrapper("sync", JSONPacket.class);
@@ -63,7 +121,6 @@ public class Main {
                             "json_packet_parser");
                     client.setObservedDir(new File("C:/Users/mauri/Desktop/files2"));
                     client.connect();
-
                     // testing file relaying system
                     SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
                             PacketWrapperFactory.createPacketWrapper("sync", JSONPacket.class);

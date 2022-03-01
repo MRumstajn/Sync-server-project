@@ -12,7 +12,14 @@ public interface ISyncServer {
     List<SyncClientDevice> getClients();
     SyncClientDevice getFileHost(String path);
     SyncClientDevice getDeviceWithID(int id);
-    void setDeviceAuth(int deviceID);
+    void addDevice(SyncClientDevice device);
+    void removeDevice(SyncClientDevice device);
+    void setDeviceName(SyncClientDevice device, String name);
+    void setDeviceAuth(SyncClientDevice device);
+    void addFile(SyncClientDevice device, String path, boolean isDir);
+    void removeFile(SyncClientDevice device, String path, boolean isDir);
+    void syncStarted(String file, SyncClientDevice cl1, SyncClientDevice cl2);
+    void syncCompleted(String file, SyncClientDevice cl1, SyncClientDevice cl2);
     void addRelayRoute(SyncClientDevice sender, SyncClientDevice receiver);
     void removeRelayRoute(SyncClientDevice sender);
     SyncClientDevice getRelayRoute(SyncClientDevice sender);
