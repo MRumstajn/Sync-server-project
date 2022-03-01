@@ -2,14 +2,12 @@ package com.mauricio.sync.client;
 
 import com.mauricio.sync.packets.IPacket;
 import com.mauricio.sync.packets.parsers.IPacketParser;
-import com.mauricio.sync.packets.wrappers.AuthPacketWrapper;
-import com.mauricio.sync.packets.wrappers.ErrorPacketWrapper;
-import com.mauricio.sync.packets.wrappers.SyncDataPacketWrapper;
-import com.mauricio.sync.packets.wrappers.SyncFilePacketWrapper;
+import com.mauricio.sync.packets.wrappers.*;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Base64;
+import java.util.Map;
 
 public class SyncClientMessageReceiver implements Runnable{
     private ISyncClient client;
@@ -74,6 +72,12 @@ public class SyncClientMessageReceiver implements Runnable{
                         } else {
                             boolean isDir = client.getFile(dataPacket.getPath()).isDirectory();
                             client.fileSyncCompleted(dataPacket.getPath(), isDir);
+                        }
+                        break;
+                    case "list_files":
+                        ListFilesPacketWrapper listFilesPacket = new ListFilesPacketWrapper(packet);
+                        for (Map<String, Object> file : listFilesPacket.getFiles()) {
+                            client.addFile((String) file.get("path"), (Boolean) file.get("is_dir"));
                         }
                         break;
                 }

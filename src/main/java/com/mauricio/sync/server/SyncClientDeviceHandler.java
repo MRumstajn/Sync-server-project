@@ -108,6 +108,20 @@ public class SyncClientDeviceHandler implements Runnable{
                             server.removeFile(thisDevice, (String) obj.get("path"), (Boolean) obj.get("is_dir"));
                         }
                         break;
+                    case "list_files":
+                        ListFilesPacketWrapper listFilesPacket = new ListFilesPacketWrapper(packet);
+                        if (listFilesPacket.validate()) {
+                            for (SyncClientDevice client : server.getClients()) {
+                                Map<String, Boolean> files = client.getFiles();
+                                for (String filename : files.keySet()) {
+                                    listFilesPacket.addFile(filename, files.get(filename));
+                                }
+                            }
+                            sendPacket(listFilesPacket);
+                        } else {
+                            sendPacket(createErrorPacket("Invalid list files packet"));
+                        }
+                        break;
                 }
             }
             server.removeDevice(server.getDeviceWithID(deviceID));

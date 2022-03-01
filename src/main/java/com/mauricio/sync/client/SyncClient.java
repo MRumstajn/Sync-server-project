@@ -154,6 +154,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
     }
 
     @Override
+    public Map<String, Boolean> getFileList() {
+        return serverFilesMap;
+    }
+
+    @Override
     public void setAuthenticated(boolean status) {
         authenticated = status;
         for (ISyncClientListener listener : getListeners()) {

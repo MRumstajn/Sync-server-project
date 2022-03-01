@@ -3,11 +3,13 @@ package com.mauricio.sync;
 import com.mauricio.sync.client.ISyncClientListener;
 import com.mauricio.sync.client.SyncClient;
 import com.mauricio.sync.packets.JSONPacket;
+import com.mauricio.sync.packets.wrappers.ListFilesPacketWrapper;
 import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
 import com.mauricio.sync.packets.wrappers.SyncFilePacketWrapper;
 import com.mauricio.sync.server.ISyncServerListener;
 import com.mauricio.sync.server.SyncClientDevice;
 import com.mauricio.sync.server.SyncServer;
+import com.sun.security.auth.module.JndiLoginModule;
 
 import java.io.File;
 import java.io.IOException;
@@ -176,7 +178,19 @@ public class Main {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    client.sendPacket(testPacket);
+                    //client.sendPacket(testPacket);
+                    // testing file listing packet
+                    ListFilesPacketWrapper listPacket = (ListFilesPacketWrapper)
+                            PacketWrapperFactory.createPacketWrapper("list_files", JSONPacket.class);
+                    client.sendPacket(listPacket);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    client.getFileList().forEach((f, d) -> {
+                        System.out.println("Client list file: " + f);
+                    });
                 } catch (IOException | InvalidParameterException e) {
                     e.printStackTrace();
                 }

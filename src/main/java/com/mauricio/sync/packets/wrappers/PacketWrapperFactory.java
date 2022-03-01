@@ -32,6 +32,9 @@ public class PacketWrapperFactory {
                 case "remove_files":
                     wrapper = new RemoveFilesPacketWrapper(packetClass.newInstance());
                     break;
+                case "list_files":
+                    wrapper = new ListFilesPacketWrapper(packetClass.newInstance());
+                    break;
             }
         } catch (InstantiationException e) {
         } catch (IllegalAccessException e) {

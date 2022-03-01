@@ -4,6 +4,7 @@ import com.mauricio.sync.packets.IPacket;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public interface ISyncClient {
     void connect() throws IOException;
@@ -13,6 +14,7 @@ public interface ISyncClient {
     void sendDir(String path) throws IOException;
     String getServerIP();
     int getServerPort();
+    Map<String, Boolean> getFileList();
     void setAuthenticated(boolean status);
     boolean isAuthenticated();
     boolean doesFileExist(String filename);
