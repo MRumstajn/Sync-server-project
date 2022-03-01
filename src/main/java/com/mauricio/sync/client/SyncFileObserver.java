@@ -1,15 +1,15 @@
 package com.mauricio.sync.client;
 
+import com.mauricio.sync.events.EventEmitter;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class SyncFileObserver implements ISyncFileObserver, Runnable{
-    private Map<String, Boolean> syncStatusMap; // filename, sync status
+public class SyncFileObserver extends EventEmitter<ISyncFileObserverListener> implements ISyncFileObserver, Runnable{
+    private Map<String, Boolean> syncStatusMap; // filename, register status
     private File observedDir;
     private boolean running;
 
@@ -72,8 +72,29 @@ public class SyncFileObserver implements ISyncFileObserver, Runnable{
             if (observedDir != null) {
                 if (observedDir.exists()) {
                     for (File file : observedDir.listFiles()) {
+                        // check for new files
                         if (!syncStatusMap.containsKey(file.getName())) {
                             syncStatusMap.put(file.getName(), false);
+                            for (ISyncFileObserverListener listener : getListeners()) {
+                                listener.onFileAdded(relativePathTo(file), file.isDirectory());
+                            }
+                        }
+                    }
+                    // check if any files were removed
+                    Iterator<Map.Entry<String, Boolean>> syncMapEntryIter = syncStatusMap.entrySet().iterator();
+                    while (syncMapEntryIter.hasNext()){
+                        Map.Entry<String, Boolean> entry = syncMapEntryIter.next();
+                        boolean removed = true;
+                        for (File tfile : observedDir.listFiles()){
+                            if (tfile.getName().equals(entry.getKey())){
+                                removed = false;
+                            }
+                        }
+                        if (removed){
+                            for (ISyncFileObserverListener listener : getListeners()) {
+                                listener.onFileRemoved(entry.getKey(), syncStatusMap.get(entry.getKey()));
+                            }
+                            syncMapEntryIter.remove();
                         }
                     }
                 }

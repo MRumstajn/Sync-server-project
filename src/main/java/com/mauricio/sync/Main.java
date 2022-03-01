@@ -1,5 +1,6 @@
 package com.mauricio.sync;
 
+import com.mauricio.sync.client.ISyncClientListener;
 import com.mauricio.sync.client.SyncClient;
 import com.mauricio.sync.packets.JSONPacket;
 import com.mauricio.sync.packets.wrappers.PacketWrapperFactory;
@@ -93,7 +94,7 @@ public class Main {
                     client.setObservedDir(new File("C:/Users/mauri/Desktop/files"));
                     client.connect();
                     // testing file relaying system
-                    /*SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
+                    SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)
                             PacketWrapperFactory.createPacketWrapper("sync", JSONPacket.class);
                     testPacket.setPath("data_v2.txt");
                     testPacket.setIsDir(false);
@@ -103,7 +104,7 @@ public class Main {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    client.sendPacket(testPacket);*/
+                    client.sendPacket(testPacket);
                     //
 
                 } catch (IOException | InvalidParameterException e) {
@@ -120,6 +121,50 @@ public class Main {
                     SyncClient client = new SyncClient("localhost", 10000, "client #2", "",
                             "json_packet_parser");
                     client.setObservedDir(new File("C:/Users/mauri/Desktop/files2"));
+                    client.addListener(new ISyncClientListener() {
+                        @Override
+                        public void onConnect(String ip, int port) {
+                            System.out.println("Client connected to " + ip + ":" + port);
+                        }
+
+                        @Override
+                        public void onDisconnect(String ip, int port) {
+                            System.out.println("Client disconnected");
+                        }
+
+                        @Override
+                        public void onAuthenticated(boolean status) {
+                            if (status){
+                                System.out.println("Client authenticated");
+                            } else {
+                                System.out.println("Client not authenticated");
+                            }
+                        }
+
+                        @Override
+                        public void onFileAdded(String filename, boolean isDir) {
+                            System.out.println("File " + filename + " added");
+                            System.out.println("\rfolder: " + isDir);
+                        }
+
+                        @Override
+                        public void onFileRemoved(String filename, boolean isDir) {
+                            System.out.println("File " + filename + " removed");
+                            System.out.println("\rfolder: " + isDir);
+                        }
+
+                        @Override
+                        public void onFileSyncStarted(String filename, boolean isDir) {
+                            System.out.println("Started sync for file " + filename);
+                            System.out.println("\rfolder: " + isDir);
+                        }
+
+                        @Override
+                        public void onFileSyncCompleted(String filename, boolean isDir) {
+                            System.out.println("Completed sync for file " + filename);
+                            System.out.println("\rfolder: " + isDir);
+                        }
+                    });
                     client.connect();
                     // testing file relaying system
                     SyncFilePacketWrapper testPacket = (SyncFilePacketWrapper)

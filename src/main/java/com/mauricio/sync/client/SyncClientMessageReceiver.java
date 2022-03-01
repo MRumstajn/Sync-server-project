@@ -47,6 +47,7 @@ public class SyncClientMessageReceiver implements Runnable{
                         } else {
                             System.out.println("Authentication failed");
                         }
+                        client.setAuthenticated(authResponsePacket.getStatus());
                         break;
                     case "error":
                         ErrorPacketWrapper errorPacketWrapper = new ErrorPacketWrapper(packet);
@@ -63,12 +64,16 @@ public class SyncClientMessageReceiver implements Runnable{
                                 client.sendFile(syncPacket.getPath(), true);
                             }
                         }
+                        client.fileSyncStarted(syncPacket.getPath(), syncPacket.isDir());
                         break;
                     case "sync_data":
                         SyncDataPacketWrapper dataPacket = new SyncDataPacketWrapper(packet);
                         if (!dataPacket.getData().equals("eof")) {
                             byte[] buff = Base64.getDecoder().decode(dataPacket.getData());
                             client.writeBuffer(buff, dataPacket.getPath());
+                        } else {
+                            boolean isDir = client.getFile(dataPacket.getPath()).isDirectory();
+                            client.fileSyncCompleted(dataPacket.getPath(), isDir);
                         }
                         break;
                 }

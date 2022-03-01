@@ -1,5 +1,6 @@
 package com.mauricio.sync.client;
 
+import com.mauricio.sync.events.EventEmitter;
 import com.mauricio.sync.packets.parsers.PacketParserFactory;
 import com.mauricio.sync.packets.wrappers.*;
 import com.mauricio.sync.packets.IPacket;
@@ -9,11 +10,9 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
-public class SyncClient implements ISyncClient {
+public class SyncClient extends EventEmitter<ISyncClientListener> implements ISyncClient {
     private Socket clientSocket;
     private DataInputStream in;
     private DataOutputStream out;
@@ -21,8 +20,10 @@ public class SyncClient implements ISyncClient {
     private int port;
     private String username;
     private String password;
+    private boolean authenticated;
     private IPacketParser packetParser;
     private SyncFileObserver fileObserver;
+    private Map<String, Boolean> serverFilesMap;
     public static final int PACKET_PAYLOAD_SIZE = 1024;
 
     @SuppressWarnings({"deprecation", "ConstantConditions"})
@@ -37,13 +38,32 @@ public class SyncClient implements ISyncClient {
             throw new InvalidParameterException("Invalid packet parser type " + packetParserType);
         }
         fileObserver = new SyncFileObserver();
+        serverFilesMap = new HashMap<>();
     }
 
     @Override
     public void connect() throws IOException {
         clientSocket = new Socket(ip, port);
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onConnect(ip, port);
+        }
         in = new DataInputStream(clientSocket.getInputStream());
         out = new DataOutputStream(clientSocket.getOutputStream());
+        fileObserver.addListener(new ISyncFileObserverListener() {
+            @Override
+            public void onFileAdded(String filename, boolean isDir) {
+                try {
+                    registerFiles();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFileRemoved(String filename, boolean isDir) {
+
+            }
+        });
         new Thread(new SyncClientMessageReceiver(this, clientSocket, packetParser)).start();
         new Thread(fileObserver).start();
         // client authentication test
@@ -54,12 +74,14 @@ public class SyncClient implements ISyncClient {
         authPacket.setPassword(password);
         authPacket.setStatus(false);
         sendPacket(authPacket);
-        registerFiles();
     }
 
     @Override
     public void disconnect() throws IOException {
         clientSocket.close();
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onDisconnect(ip, port);
+        }
     }
 
     @Override
@@ -126,6 +148,19 @@ public class SyncClient implements ISyncClient {
         return port;
     }
 
+    @Override
+    public void setAuthenticated(boolean status) {
+        authenticated = status;
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onAuthenticated(status);
+        }
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
     public boolean doesFileExist(String filename) {
         return fileObserver.doesFileExist(filename);
     }
@@ -149,6 +184,36 @@ public class SyncClient implements ISyncClient {
     }
 
     @Override
+    public void addFile(String file, boolean isDir) {
+        serverFilesMap.put(file, isDir);
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onFileAdded(file, isDir);
+        }
+    }
+
+    @Override
+    public void removeFile(String file, boolean isDir) {
+        serverFilesMap.remove(file);
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onFileRemoved(file, isDir);
+        }
+    }
+
+    @Override
+    public void fileSyncStarted(String file, boolean isDir) {
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onFileSyncStarted(file, isDir);
+        }
+    }
+
+    @Override
+    public void fileSyncCompleted(String file, boolean isDir) {
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onFileSyncCompleted(file, isDir);
+        }
+    }
+
+    @Override
     public void setObservedDir(File dir) {
         fileObserver.setObservedDir(dir);
     }
@@ -162,9 +227,17 @@ public class SyncClient implements ISyncClient {
     public void registerFiles() throws IOException {
         AddFilesPacketWrapper addFilesPacket = (AddFilesPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("add_files", packetParser.getPacketClass());
+        Map<String, Boolean> syncStatusMap = fileObserver.getSyncStatusMap();
         for (File file : fileObserver.getFiles()) {
+            if (syncStatusMap.containsKey(file.getName())){
+                if (syncStatusMap.get(file.getName())){
+                    continue;
+                }
+            }
+            System.out.println("Syncing file " + file.getName() + "...");
             String relativePath = fileObserver.relativePathTo(file);
             addFilesPacket.addFile(relativePath, file.isDirectory());
+            syncStatusMap.put(file.getName(), true);
         }
         sendPacket(addFilesPacket);
     }

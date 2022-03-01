@@ -13,11 +13,17 @@ public interface ISyncClient {
     void sendDir(String path) throws IOException;
     String getServerIP();
     int getServerPort();
+    void setAuthenticated(boolean status);
+    boolean isAuthenticated();
     boolean doesFileExist(String filename);
     boolean doesDirExist(String dirname);
     File getFile(String filename);
     File getObservedDir();
     String getFullPath(String filename);
+    void addFile(String file, boolean isDir);
+    void removeFile(String file, boolean isDir);
+    void fileSyncStarted(String file, boolean isDir);
+    void fileSyncCompleted(String file, boolean isDir);
     void setObservedDir(File file);
     void writeBuffer(byte[] buff, String path) throws IOException;
     void registerFiles() throws IOException;
