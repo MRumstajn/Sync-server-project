@@ -27,4 +27,5 @@ public interface ISyncClient {
     void setObservedDir(File file);
     void writeBuffer(byte[] buff, String path) throws IOException;
     void registerFiles() throws IOException;
+    void unregisterRemovedFiles() throws IOException;
 }

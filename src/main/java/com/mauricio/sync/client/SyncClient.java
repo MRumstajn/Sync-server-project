@@ -61,7 +61,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
 
             @Override
             public void onFileRemoved(String filename, boolean isDir) {
-
+                try {
+                    unregisterRemovedFiles();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         new Thread(new SyncClientMessageReceiver(this, clientSocket, packetParser)).start();
@@ -128,7 +132,8 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
 
     @Override
     public void sendDir(String path) throws IOException {
-        List<String> filePaths = fileObserver.deepListFiles(fileObserver.getObservedDir(), new ArrayList<>(), "");
+        List<String> filePaths = fileObserver.deepListFiles(fileObserver.getObservedDir(),
+                new ArrayList<>(), "", false);
         for (int i = 0; i < filePaths.size(); i++) {
             if (i < filePaths.size() - 1) {
                 sendFile(filePaths.get(i), false);
@@ -228,17 +233,50 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         AddFilesPacketWrapper addFilesPacket = (AddFilesPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("add_files", packetParser.getPacketClass());
         Map<String, Boolean> syncStatusMap = fileObserver.getSyncStatusMap();
+        Map<String, Boolean> addCache = fileObserver.getAddCache();
+        for (String filename : addCache.keySet()){
+            // get relative path (from root to file)
+            String relPath = fileObserver.deepListFiles(fileObserver.getObservedDir(),
+                    new ArrayList<>(), filename, true).get(0);
+            //addFilesPacket.addFile(relPath, addCache.get(relPath));
+            addFilesPacket.addFile(filename, addCache.get(relPath));
+            syncStatusMap.put(filename, true);
+            addCache.remove(filename);
+        }
+        //addCache.clear();
+        sendPacket(addFilesPacket);
+    }
+
+    @Override
+    public void unregisterRemovedFiles() throws IOException {
+        /*RemoveFilesPacketWrapper removeFilesPacket = (RemoveFilesPacketWrapper)
+                PacketWrapperFactory.createPacketWrapper("remove_files", packetParser.getPacketClass());
+        Map<String, Boolean> syncStatusMap = fileObserver.getSyncStatusMap();
         for (File file : fileObserver.getFiles()) {
             if (syncStatusMap.containsKey(file.getName())){
-                if (syncStatusMap.get(file.getName())){
-                    continue;
-                }
+                System.out.println("skip-------------------");
+                continue;
             }
-            System.out.println("Syncing file " + file.getName() + "...");
+            System.out.println("Removing file " + file.getName() + "...");
             String relativePath = fileObserver.relativePathTo(file);
-            addFilesPacket.addFile(relativePath, file.isDirectory());
-            syncStatusMap.put(file.getName(), true);
+            removeFilesPacket.addFile(relativePath, file.isDirectory());
         }
-        sendPacket(addFilesPacket);
+        sendPacket(removeFilesPacket);*/
+
+
+        RemoveFilesPacketWrapper removeFilesPacket = (RemoveFilesPacketWrapper)
+                PacketWrapperFactory.createPacketWrapper("remove_files", packetParser.getPacketClass());
+        Map<String, Boolean> removeCache = fileObserver.getRemoveCache();
+        for (String filename : removeCache.keySet()){
+            // get relative path (from root to file)
+            /*String relPath = fileObserver.deepListFiles(fileObserver.getObservedDir(),
+                    new ArrayList<>(), filename, true).get(0);
+            System.out.println(".-------------------------." + relPath);*/
+            //removeFilesPacket.addFile(relPath, removeCache.get(filename));
+            removeFilesPacket.addFile(filename, removeCache.get(filename));
+            removeCache.remove(filename);
+        }
+        //removeCache.clear();
+        sendPacket(removeFilesPacket);
     }
 }

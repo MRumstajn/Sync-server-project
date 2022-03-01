@@ -15,4 +15,6 @@ public interface ISyncFileObserver {
     File[] getFiles();
     Map<String, Boolean> getSyncStatusMap();
     void writeBuffer(byte[] buff, String path) throws IOException;
+    Map<String, Boolean> getAddCache();
+    Map<String, Boolean> getRemoveCache();
 }

@@ -104,7 +104,7 @@ public class Main {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    client.sendPacket(testPacket);
+                    //client.sendPacket(testPacket);
                     //
 
                 } catch (IOException | InvalidParameterException e) {
