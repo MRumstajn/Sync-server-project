@@ -299,6 +299,13 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
     }
 
     @Override
+    public void serverFileUnlisted(String filename, String host, boolean isDir) {
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onServerFileUnlisted(filename, host, isDir);
+        }
+    }
+
+    @Override
     public void receivedListPacket() {
         for (ISyncClientListener listener : getListeners()) {
             listener.onReceivedListPacket();

@@ -371,7 +371,8 @@ public class ServerWindow extends Stage {
                     if (!((Label) item.getChildren().get(2)).getText().equals("(" + host + ")")){
                         continue;
                     }
-
+                    fileList.getItems().remove(item);
+                    break;
                 }
             }
         });

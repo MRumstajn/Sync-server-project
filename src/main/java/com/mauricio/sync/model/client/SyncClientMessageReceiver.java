@@ -89,6 +89,29 @@ public class SyncClientMessageReceiver implements Runnable{
                             }
                         }
                         break;
+                    case "add_files":
+                        AddFilesPacketWrapper addFilesPacket = new AddFilesPacketWrapper(packet);
+                        List<Map<String, Object>> fileObjList = addFilesPacket.getFiles();
+                        for (Map<String, Object> obj : fileObjList) {
+                            String filename = (String) obj.get("path");
+                            String host = (String) addFilesPacket.get("host");
+                            boolean isDir = (Boolean) obj.get("is_dir");
+                            client.addFile(filename, host, isDir);
+                            client.serverFileListed(filename, host, isDir);
+                        }
+                        break;
+                    case "remove_files":
+                        RemoveFilesPacketWrapper removeFilesPacket = new RemoveFilesPacketWrapper(packet);
+                        List<Map<String, Object>> fileObjList2 = removeFilesPacket.getFiles();
+                        for (Map<String, Object> obj : fileObjList2) {
+                            String filename = (String) obj.get("path");
+                            String host = (String) removeFilesPacket.get("host");
+                            boolean isDir = (Boolean) obj.get("is_dir");
+                            client.removeFile(filename, host, isDir);
+                            client.serverFileUnlisted(filename, host, isDir);
+                        }
+                        break;
+
                 }
             }
         } catch (IOException e){

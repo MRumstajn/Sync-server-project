@@ -11,5 +11,6 @@ public interface ISyncClientListener {
     void onFileSyncStarted(String filename, boolean isDir);
     void onFileSyncCompleted(String filename, boolean isDir);
     void onServerFileListed(String filename, String host, boolean isDir); // file listed on server
+    void onServerFileUnlisted(String filename, String host, boolean isDir); // file unlisted on server
     void onReceivedListPacket();
 }

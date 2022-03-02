@@ -98,28 +98,14 @@ public class SyncClientDeviceHandler implements Runnable{
                             for (Map<String, Object> obj : fileObjList) {
                                 server.addFile(device, (String) obj.get("path"), (Boolean) obj.get("is_dir"));
                             }
-                            for (SyncClientDevice serverClient : server.getClients()) {
-                                if (serverClient == device){
-                                    continue;
-                                }
-                                serverClient.getHandler().sendPacket(addFilesPacket);
-                            }
 
                             // notify other clients that a file has been added
                             for (SyncClientDevice serverClient : server.getClients()) {
                                 if (serverClient.getId() == deviceID){
                                     continue;
                                 }
-                                ListFilesPacketWrapper listFilesPacket = (ListFilesPacketWrapper)
-                                        PacketWrapperFactory.createPacketWrapper("list_files",
-                                                packetParser.getPacketClass());
-                                for (Map<String, Object> file : addFilesPacket.getFiles()) {
-                                    String path = (String) file.get("path");
-                                    String host = device.getName();
-                                    boolean isDir = (Boolean) file.get("is_dir");
-                                    listFilesPacket.addFile(path, host, isDir);
-                                }
-                                serverClient.getHandler().sendPacket(listFilesPacket);
+                                addFilesPacket.setHost(device.getName());
+                                serverClient.getHandler().sendPacket(addFilesPacket);
                             }
                         } else {
                             sendPacket(createErrorPacket("Invalid add files packet"));
@@ -131,6 +117,14 @@ public class SyncClientDeviceHandler implements Runnable{
                         SyncClientDevice thisDevice = server.getDeviceWithID(deviceID);
                         for (Map<String, Object> obj : fileObjListRemove){
                             server.removeFile(thisDevice, (String) obj.get("path"), (Boolean) obj.get("is_dir"));
+                        }
+                        // notify other clients that a file has been added
+                        for (SyncClientDevice serverClient : server.getClients()) {
+                            if (serverClient.getId() == deviceID){
+                                continue;
+                            }
+                            removeFilesPacket.setHost(thisDevice.getName());
+                            serverClient.getHandler().sendPacket(removeFilesPacket);
                         }
                         break;
                     case "list_files":

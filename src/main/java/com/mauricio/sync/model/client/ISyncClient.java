@@ -33,5 +33,6 @@ public interface ISyncClient {
     void downloadFile(String filename, String host, boolean isDir) throws IOException;
     void fetchFileList() throws IOException;
     void serverFileListed(String filename, String host, boolean isDir);
+    void serverFileUnlisted(String filename, String host, boolean isDir);
     void receivedListPacket();
 }

@@ -74,6 +74,13 @@ public class RemoveFilesPacketWrapper extends PacketWrapper{
         put("files", fileList);
     }
 
+    // only used when sending from server to client
+    // because the server already knows which client sent the packet
+    // and the client needs to know which client the packet was relayed from
+    public void setHost(String host){
+        put("host", host);
+    }
+
     public List<Map<String, Object>> getFiles(){
         return (List<Map<String, Object>>) get("files");
     }

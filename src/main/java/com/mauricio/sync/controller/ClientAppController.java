@@ -97,6 +97,11 @@ public class ClientAppController extends Application {
                     }
 
                     @Override
+                    public void onServerFileUnlisted(String filename, String host, boolean isDir) {
+                        clientWindow.removeFileFromList(filename, host, isDir);
+                    }
+
+                    @Override
                     public void onReceivedListPacket() {
                         clientWindow.clearFileList();
                     }
