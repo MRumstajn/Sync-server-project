@@ -80,12 +80,14 @@ public class SyncClientMessageReceiver implements Runnable{
                         /*for (Map<String, Object> file : listFilesPacket.getFiles()) {
                             client.addFile((String) file.get("path"), (Boolean) file.get("is_dir"));
                         }*/
-                        System.out.println("received list of files packet");
                         List<Map<String, Object>> fileList = listFilesPacket.getFiles();
                         if (fileList != null) {
                             for (Map<String, Object> dataMap : listFilesPacket.getFiles()) {
-                                client.addFile((String) dataMap.get("path"),
-                                        (String) dataMap.get("host"), (Boolean) dataMap.get("is_dir"));
+                                String filename = (String) dataMap.get("path");
+                                String host = (String) dataMap.get("host");
+                                boolean isDir = (Boolean) dataMap.get("is_dir");
+                                client.addFile(filename, host, isDir);
+                                client.serverFileListed(filename, host, isDir);
                             }
                         }
                         break;

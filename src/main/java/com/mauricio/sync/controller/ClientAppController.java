@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public class ClientAppController extends Application {
 
@@ -72,13 +73,12 @@ public class ClientAppController extends Application {
 
                     @Override
                     public void onFileAdded(String filename, String host, boolean isDir) {
-                        clientWindow.addFileToList(filename, host, isDir);
-                        System.out.println("client detected new file " + filename);
+                        // this event is handled by the observer
                     }
 
                     @Override
                     public void onFileRemoved(String filename, String host, boolean isDir) {
-                        clientWindow.removeFileFromList(filename, host, isDir);
+                        // this event is handled by the observer
                     }
 
                     @Override
@@ -89,6 +89,11 @@ public class ClientAppController extends Application {
                     @Override
                     public void onFileSyncCompleted(String filename, boolean isDir) {
                         clientWindow.showInfoDialog("Download complete for file " + filename);
+                    }
+
+                    @Override
+                    public void onServerFileListed(String filename, String host, boolean isDir) {
+                        clientWindow.addFileToList(filename, host, isDir);
                     }
                 });
 

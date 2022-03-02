@@ -111,6 +111,10 @@ public class SyncClientDeviceHandler implements Runnable{
                         ListFilesPacketWrapper listFilesPacket = new ListFilesPacketWrapper(packet);
                         //if (listFilesPacket.validate()) {
                             for (SyncClientDevice client : server.getClients()) {
+                                if (client.getId() == deviceID){
+                                    System.out.println("con");
+                                    continue;
+                                }
                                 Map<String, Boolean> files = client.getFiles();
                                 for (String filename : files.keySet()) {
                                     listFilesPacket.addFile(filename, client.getName(), files.get(filename));

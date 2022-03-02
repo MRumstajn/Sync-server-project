@@ -32,4 +32,5 @@ public interface ISyncClient {
     void unregisterRemovedFiles() throws IOException;
     void downloadFile(String filename, String host, boolean isDir) throws IOException;
     void fetchFileList() throws IOException;
+    void serverFileListed(String filename, String host, boolean isDir);
 }

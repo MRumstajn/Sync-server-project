@@ -290,4 +290,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
                 PacketWrapperFactory.createPacketWrapper("list_files", packetParser.getPacketClass());
         sendPacket(listPacket);
     }
+
+    @Override
+    public void serverFileListed(String filename, String host, boolean isDir) {
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onServerFileListed(filename, host, isDir);
+        }
+    }
 }
