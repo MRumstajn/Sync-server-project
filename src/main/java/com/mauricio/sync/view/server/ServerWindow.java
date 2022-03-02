@@ -1,5 +1,6 @@
 package com.mauricio.sync.view.server;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -211,109 +212,169 @@ public class ServerWindow extends Stage {
     }
 
     public void setPortLabel(String text){
-        portLabel.setText(text);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                portLabel.setText(text);
+            }
+        });
     }
 
     public void setStatusLabel(String text){
-        statusLabel.setText(text);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                statusLabel.setText(text);
+            }
+        });
     }
 
     public void setUptimeLabel(String text){
-        uptimeLabel.setText(text);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                uptimeLabel.setText(text);
+            }
+        });
     }
 
     public void setClientCountLabel(String text){
-        clientCountLabel.setText(text);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                clientCountLabel.setText(text);
+            }
+        });
     }
 
     public void setThreadCountLabel(String text){
-        threadCountLabel.setText(text);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                threadCountLabel.setText(text);
+            }
+        });
     }
 
     public void setCPUBarPercent(double percent){
-        cpuBar.setProgress(percent);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                cpuBar.setProgress(percent);
+            }
+        });
     }
 
     public void setMemoryBarPercent(double percent){
-        memoryBar.setProgress(percent);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                memoryBar.setProgress(percent);
+            }
+        });
     }
 
     public void setNetworkBarPercent(double percent){
-        networkBar.setProgress(percent);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                networkBar.setProgress(percent);
+            }
+        });
     }
 
     public void addClientToList(String username, String ip, int port){
-        HBox row = new HBox();
-        row.getChildren().add(new Label(username));
-        row.getChildren().add(new Label("(" + ip + ":" + port + ")"));
-        row.getChildren().add(new Button("Disconnect"));
-        clientList.getItems().add(row);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                HBox row = new HBox();
+                row.getChildren().add(new Label(username));
+                row.getChildren().add(new Label("(" + ip + ":" + port + ")"));
+                row.getChildren().add(new Button("Disconnect"));
+                clientList.getItems().add(row);
+            }
+        });
     }
 
     public void removeClientFromList(String username){
-        HBox toRemove = null;
-        for (HBox item : clientList.getItems()) {
-            if (((Label) item.getChildren().get(0)).getText().equals(username)){
-                toRemove = item;
-                break;
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                HBox toRemove = null;
+                for (HBox item : clientList.getItems()) {
+                    if (((Label) item.getChildren().get(0)).getText().equals(username)){
+                        toRemove = item;
+                        break;
+                    }
+                }
+                if (toRemove != null){
+                    clientList.getItems().remove(toRemove);
+                }
             }
-        }
-        if (toRemove != null){
-            clientList.getItems().remove(toRemove);
-        }
+        });
     }
 
     public void addFileToList(String filename, String host, boolean isDir){
-        HBox row = new HBox();
-        if (isDir) {
-            Node prefix;
-            if (folderIcon != null){
-                prefix = new ImageView(folderIcon);
-            } else {
-                prefix = new Label("[Folder]");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                HBox row = new HBox();
+                if (isDir) {
+                    Node prefix;
+                    if (folderIcon != null){
+                        prefix = new ImageView(folderIcon);
+                    } else {
+                        prefix = new Label("[Folder]");
+                    }
+                    row.getChildren().add(prefix);
+                } else {
+                    Node prefix;
+                    if (fileIcon != null){
+                        prefix = new ImageView(folderIcon);
+                    } else {
+                        prefix = new Label("[File]");
+                    }
+                    row.getChildren().add(prefix);
+                }
+                row.getChildren().add(new Label(filename));
+                row.getChildren().add(new Label("(" + host + ")"));
+                fileList.getItems().add(row);
             }
-            row.getChildren().add(prefix);
-        } else {
-            Node prefix;
-            if (fileIcon != null){
-                prefix = new ImageView(folderIcon);
-            } else {
-                prefix = new Label("[File]");
-            }
-            row.getChildren().add(prefix);
-        }
-        row.getChildren().add(new Label(filename));
-        row.getChildren().add(new Label("(" + host + ")"));
-        fileList.getItems().add(row);
+        });
     }
 
     public void removeFileFromList(String filename, String host, boolean isDir){
-        for (HBox item : fileList.getItems()) {
-            // check if the image/text prefix matches the isDir state
-            Node prefix = item.getChildren().get(0);
-            if (prefix instanceof ImageView){
-                if (((ImageView) prefix).getImage() == fileIcon && isDir){
-                    continue;
-                } else if (((ImageView) prefix).getImage() == fileIcon && !isDir){
-                    continue;
-                }
-            } else {
-                if (((Label) prefix).getText().equals("[File]") && isDir){
-                    continue;
-                } else if (((Label) prefix).getText().equals("[Folder]") && !isDir){
-                    continue;
-                }
-            }
-            // check if filename matches label
-            if (!((Label) item.getChildren().get(1)).getText().equals(filename)){
-                continue;
-            }
-            // check if host matches label
-            if (!((Label) item.getChildren().get(2)).getText().equals("(" + host + ")")){
-                continue;
-            }
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                for (HBox item : fileList.getItems()) {
+                    // check if the image/text prefix matches the isDir state
+                    Node prefix = item.getChildren().get(0);
+                    if (prefix instanceof ImageView){
+                        if (((ImageView) prefix).getImage() == fileIcon && isDir){
+                            continue;
+                        } else if (((ImageView) prefix).getImage() == fileIcon && !isDir){
+                            continue;
+                        }
+                    } else {
+                        if (((Label) prefix).getText().equals("[File]") && isDir){
+                            continue;
+                        } else if (((Label) prefix).getText().equals("[Folder]") && !isDir){
+                            continue;
+                        }
+                    }
+                    // check if filename matches label
+                    if (!((Label) item.getChildren().get(1)).getText().equals(filename)){
+                        continue;
+                    }
+                    // check if host matches label
+                    if (!((Label) item.getChildren().get(2)).getText().equals("(" + host + ")")){
+                        continue;
+                    }
 
-        }
+                }
+            }
+        });
     }
 
     private void showErrorDialog(String msg){

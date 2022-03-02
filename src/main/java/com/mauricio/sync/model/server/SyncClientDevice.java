@@ -54,4 +54,8 @@ public class SyncClientDevice {
     public int getId() {
         return id;
     }
+
+    public Socket getClientSocket() {
+        return clientSocket;
+    }
 }
