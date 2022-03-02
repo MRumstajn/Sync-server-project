@@ -80,7 +80,25 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
     }
 
     @Override
+    public void setIsUsingPassword(boolean isUsing) {
+        usePassword = isUsing;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
     public boolean isPasswordValid(String password) {
+        if (!usePassword) {
+            return true;
+        }
         return this.password.equals(password);
     }
 

@@ -8,6 +8,9 @@ public interface ISyncServer {
     void stop() throws IOException;
     int getPort();
     boolean usesPassword();
+    void setIsUsingPassword(boolean isUsing);
+    void setPassword(String password);
+    String getPassword();
     boolean isPasswordValid(String password);
     List<SyncClientDevice> getClients();
     SyncClientDevice getFileHost(String path);

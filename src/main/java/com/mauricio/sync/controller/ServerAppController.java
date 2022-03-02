@@ -46,7 +46,18 @@ public class ServerAppController extends Application {
 
                         @Override
                         public void onSettingsButtonClicked() {
-                            System.out.println("settings btn clicked");
+                            new ServerSettingsWindow().setListener(new IServerSettingsWindowListener() {
+                                @Override
+                                public void onApply(boolean usePassword, String newPassword) {
+                                    if (usePassword) {
+                                        System.out.println("new psw " + newPassword);
+                                        server.setIsUsingPassword(true);
+                                        server.setPassword(newPassword);
+                                    } else {
+                                        server.setIsUsingPassword(true);
+                                    }
+                                }
+                            });
                         }
                     });
 
