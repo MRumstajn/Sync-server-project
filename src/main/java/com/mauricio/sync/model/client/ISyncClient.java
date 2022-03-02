@@ -22,12 +22,14 @@ public interface ISyncClient {
     File getFile(String filename);
     File getObservedDir();
     String getFullPath(String filename);
-    void addFile(String file, boolean isDir);
-    void removeFile(String file, boolean isDir);
+    void addFile(String file, String host, boolean isDir);
+    void removeFile(String file, String host, boolean isDir);
     void fileSyncStarted(String file, boolean isDir);
     void fileSyncCompleted(String file, boolean isDir);
     void setObservedDir(File file);
     void writeBuffer(byte[] buff, String path) throws IOException;
     void registerFiles() throws IOException;
     void unregisterRemovedFiles() throws IOException;
+    void downloadFile(String filename, String host, boolean isDir) throws IOException;
+    void fetchFileList() throws IOException;
 }

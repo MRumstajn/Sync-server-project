@@ -109,10 +109,10 @@ public class SyncFileObserver extends EventEmitter<ISyncFileObserverListener> im
                         }
                     }
                 }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
             }
         }
     }

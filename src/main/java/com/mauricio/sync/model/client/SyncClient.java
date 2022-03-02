@@ -53,6 +53,7 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
             @Override
             public void onFileAdded(String filename, boolean isDir) {
                 try {
+                    addFile(filename, username, isDir);
                     registerFiles();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -62,6 +63,7 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
             @Override
             public void onFileRemoved(String filename, boolean isDir) {
                 try {
+                    removeFile(filename, username, isDir);
                     unregisterRemovedFiles();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -160,8 +162,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
 
     @Override
     public void setAuthenticated(boolean status) {
+        System.out.println("AUTHY");
         authenticated = status;
+        System.out.println(getListeners().size());
         for (ISyncClientListener listener : getListeners()) {
+            System.out.println("notified listener");
             listener.onAuthenticated(status);
         }
     }
@@ -194,18 +199,18 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
     }
 
     @Override
-    public void addFile(String file, boolean isDir) {
+    public void addFile(String file, String host, boolean isDir) {
         serverFilesMap.put(file, isDir);
         for (ISyncClientListener listener : getListeners()) {
-            listener.onFileAdded(file, isDir);
+            listener.onFileAdded(file, host, isDir);
         }
     }
 
     @Override
-    public void removeFile(String file, boolean isDir) {
+    public void removeFile(String file, String host, boolean isDir) {
         serverFilesMap.remove(file);
         for (ISyncClientListener listener : getListeners()) {
-            listener.onFileRemoved(file, isDir);
+            listener.onFileRemoved(file, host, isDir);
         }
     }
 
@@ -268,5 +273,21 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
         //removeCache.clear();
         sendPacket(removeFilesPacket);
+    }
+
+    @Override
+    public void downloadFile(String filename, String host, boolean isDir) throws IOException {
+        SyncFilePacketWrapper syncPacket = (SyncFilePacketWrapper)
+                PacketWrapperFactory.createPacketWrapper("sync", packetParser.getPacketClass());
+        syncPacket.setPath(filename);
+        syncPacket.setIsDir(isDir);
+        sendPacket(syncPacket);
+    }
+
+    @Override
+    public void fetchFileList() throws IOException {
+        ListFilesPacketWrapper listPacket = (ListFilesPacketWrapper)
+                PacketWrapperFactory.createPacketWrapper("list_files", packetParser.getPacketClass());
+        sendPacket(listPacket);
     }
 }

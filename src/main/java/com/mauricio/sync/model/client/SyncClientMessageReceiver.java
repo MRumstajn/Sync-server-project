@@ -7,6 +7,7 @@ import com.mauricio.sync.model.packets.wrappers.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 public class SyncClientMessageReceiver implements Runnable{
@@ -76,8 +77,16 @@ public class SyncClientMessageReceiver implements Runnable{
                         break;
                     case "list_files":
                         ListFilesPacketWrapper listFilesPacket = new ListFilesPacketWrapper(packet);
-                        for (Map<String, Object> file : listFilesPacket.getFiles()) {
+                        /*for (Map<String, Object> file : listFilesPacket.getFiles()) {
                             client.addFile((String) file.get("path"), (Boolean) file.get("is_dir"));
+                        }*/
+                        System.out.println("received list of files packet");
+                        List<Map<String, Object>> fileList = listFilesPacket.getFiles();
+                        if (fileList != null) {
+                            for (Map<String, Object> dataMap : listFilesPacket.getFiles()) {
+                                client.addFile((String) dataMap.get("path"),
+                                        (String) dataMap.get("host"), (Boolean) dataMap.get("is_dir"));
+                            }
                         }
                         break;
                 }

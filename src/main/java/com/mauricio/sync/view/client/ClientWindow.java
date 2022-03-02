@@ -17,7 +17,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,49 +27,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class ClientWindow extends Stage {
-    static class DownloadableFileCell extends ListCell<HBox>{
-        Label filenameLabel;
-        Label hostLabel;
-        Button downloadBtn;
-        GridPane root;
-
-        public DownloadableFileCell(String filename, String host, Node prefix){
-            super();
-            root = new GridPane();
-            root.setPadding(new Insets(10, 10, 10, 10));
-            root.setHgap(10);
-            root.setVgap(10);
-
-            prefix = new Label("");
-            root.add(prefix, 0, 0);
-            filenameLabel = new Label(filename);
-            root.add(filenameLabel, 1, 0);
-            hostLabel = new Label(host);
-            root.add(hostLabel, 2, 0);
-            downloadBtn = new Button("Download");
-            downloadBtn.setPrefHeight(20);
-            downloadBtn.setPrefWidth(40);
-            root.add(downloadBtn,3, 0, 1, 2);
-
-            ColumnConstraints leftCol = new ColumnConstraints();
-            ColumnConstraints rightCol = new ColumnConstraints();
-
-            rightCol.setHalignment(HPos.RIGHT);
-            rightCol.setHgrow(Priority.ALWAYS);
-
-            root.getColumnConstraints().addAll(leftCol, rightCol);
-        }
-
-        @Override
-        protected void updateItem(HBox item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty) {
-                setGraphic(null);
-            } else {
-                setGraphic(root);
-            }
-        }
-    }
     private Label ipLabel;
     private ListView<HBox> fileList;
     private TextField pathField;
@@ -178,18 +134,31 @@ public class ClientWindow extends Stage {
         return result;
     }
 
-    private void showErrorDialog(String msg){
+    public void showErrorDialog(String msg){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setContentText(msg);
         alert.show();
     }
 
+    public void showInfoDialog(String msg){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Info");
+        alert.setContentText(msg);
+        alert.show();
+    }
+
     public void setIpLabelText(String text){
-        ipLabel.setText(text);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                ipLabel.setText(text);
+            }
+        });
     }
 
     public void addFileToList(String filename, String host, boolean isDir){
+        System.out.println("adding to client window file list");
         Platform.runLater(new Runnable() {
             @Override
             public void run() {

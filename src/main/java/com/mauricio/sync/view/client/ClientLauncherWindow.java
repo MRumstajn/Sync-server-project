@@ -84,7 +84,7 @@ public class ClientLauncherWindow extends Stage {
         this.listener = listener;
     }
 
-    private void showErrorDialog(String msg){
+    public void showErrorDialog(String msg){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setContentText(msg);

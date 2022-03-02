@@ -109,17 +109,17 @@ public class SyncClientDeviceHandler implements Runnable{
                         break;
                     case "list_files":
                         ListFilesPacketWrapper listFilesPacket = new ListFilesPacketWrapper(packet);
-                        if (listFilesPacket.validate()) {
+                        //if (listFilesPacket.validate()) {
                             for (SyncClientDevice client : server.getClients()) {
                                 Map<String, Boolean> files = client.getFiles();
                                 for (String filename : files.keySet()) {
-                                    listFilesPacket.addFile(filename, files.get(filename));
+                                    listFilesPacket.addFile(filename, client.getName(), files.get(filename));
                                 }
                             }
                             sendPacket(listFilesPacket);
-                        } else {
+                        /*} else {
                             sendPacket(createErrorPacket("Invalid list files packet"));
-                        }
+                        }*/
                         break;
                 }
             }

@@ -12,6 +12,9 @@ public class ListFilesPacketWrapper extends PacketWrapper {
     public ListFilesPacketWrapper(IPacket packet) {
         super(packet);
         put("type", "list_files");
+        /* data structure of "files"
+        * filename: {host: isDir}
+        * */
     }
 
     @Override
@@ -42,6 +45,17 @@ public class ListFilesPacketWrapper extends PacketWrapper {
                     }
                 }
                 Map<String, Object> fileObj = (Map<String, Object>) o;
+                for (Object data : fileObj.values()){
+                    if (!(data instanceof Map)){
+                        return false;
+                    }
+                    Map<Object, Object> dataMap = (Map<Object, Object>) data;
+                    for (Object key : dataMap.keySet()){
+                        if (!(key instanceof String) || !(dataMap.get(key) instanceof Boolean)){
+                            return false;
+                        }
+                    }
+                }
                 if (!fileObj.containsKey("path") || !fileObj.containsKey("is_dir")) {
                     return false;
                 }
@@ -62,8 +76,8 @@ public class ListFilesPacketWrapper extends PacketWrapper {
         return true;
     }
 
-    public void addFile(String path, boolean isDir) {
-        List<Map<String, Object>> fileList = getFiles();
+    public void addFile(String path, String host, boolean isDir) {
+        /*List<Map<String, Object>> fileList = getFiles();
         if (fileList == null) {
             fileList = new ArrayList<>();
         }
@@ -71,10 +85,21 @@ public class ListFilesPacketWrapper extends PacketWrapper {
         fileMap.put("path", path);
         fileMap.put("is_dir", isDir);
         fileList.add(fileMap);
+        put("files", fileList);*/
+        List<Map<String, Object>> fileList = getFiles();
+        if (fileList == null){
+            fileList = new ArrayList<>();
+        }
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("path", path);
+        dataMap.put("host", host);
+        dataMap.put("is_dir", isDir);
+        fileList.add(dataMap);
         put("files", fileList);
     }
 
     public List<Map<String, Object>> getFiles() {
+        //return (List<Map<String, Object>>) get("files");
         return (List<Map<String, Object>>) get("files");
     }
 }

@@ -1,12 +1,15 @@
 package com.mauricio.sync;
 
 import com.mauricio.sync.controller.ClientAppController;
+import com.mauricio.sync.model.client.SyncClient;
 
-public class Main {
+import java.io.IOException;
+
+public class MainClient {
 
     public static void main(String[] args) {
-        //new ServerAppController().start();
         new ClientAppController().start();
     }
+
 
 }
