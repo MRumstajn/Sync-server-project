@@ -297,4 +297,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
             listener.onServerFileListed(filename, host, isDir);
         }
     }
+
+    @Override
+    public void receivedListPacket() {
+        for (ISyncClientListener listener : getListeners()) {
+            listener.onReceivedListPacket();
+        }
+    }
 }

@@ -78,7 +78,7 @@ public class ClientAppController extends Application {
 
                     @Override
                     public void onFileRemoved(String filename, String host, boolean isDir) {
-                        // this event is handled by the observer
+                        // this event is handled by the observera
                     }
 
                     @Override
@@ -94,6 +94,11 @@ public class ClientAppController extends Application {
                     @Override
                     public void onServerFileListed(String filename, String host, boolean isDir) {
                         clientWindow.addFileToList(filename, host, isDir);
+                    }
+
+                    @Override
+                    public void onReceivedListPacket() {
+                        clientWindow.clearFileList();
                     }
                 });
 

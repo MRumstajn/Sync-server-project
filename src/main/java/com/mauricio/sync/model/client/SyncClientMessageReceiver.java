@@ -3,6 +3,7 @@ package com.mauricio.sync.model.client;
 import com.mauricio.sync.model.packets.IPacket;
 import com.mauricio.sync.model.packets.parsers.IPacketParser;
 import com.mauricio.sync.model.packets.wrappers.*;
+import com.mauricio.sync.model.server.SyncClientDevice;
 
 import java.io.*;
 import java.net.Socket;
@@ -77,9 +78,6 @@ public class SyncClientMessageReceiver implements Runnable{
                         break;
                     case "list_files":
                         ListFilesPacketWrapper listFilesPacket = new ListFilesPacketWrapper(packet);
-                        /*for (Map<String, Object> file : listFilesPacket.getFiles()) {
-                            client.addFile((String) file.get("path"), (Boolean) file.get("is_dir"));
-                        }*/
                         List<Map<String, Object>> fileList = listFilesPacket.getFiles();
                         if (fileList != null) {
                             for (Map<String, Object> dataMap : listFilesPacket.getFiles()) {

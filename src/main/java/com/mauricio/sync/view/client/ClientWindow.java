@@ -251,4 +251,15 @@ public class ClientWindow extends Stage {
             }
         });
     }
+
+    public void clearFileList(){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("cleared window");
+                fileList.getItems().clear();;
+            }
+        });
+
+    }
 }
