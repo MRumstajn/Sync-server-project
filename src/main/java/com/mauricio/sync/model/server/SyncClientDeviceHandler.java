@@ -149,7 +149,7 @@ public class SyncClientDeviceHandler implements Runnable{
         String password = authPacket.getPassword();
         AuthPacketWrapper authResponsePacket = (AuthPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("auth", packetParser.getPacketClass());
-        if (server.isPasswordValid(password)){
+        if (server.isPasswordValid(password) || !server.usesPassword()){
             authResponsePacket.setStatus(true);
             SyncClientDevice device = server.getDeviceWithID(deviceID);
             server.setDeviceName(device, username);

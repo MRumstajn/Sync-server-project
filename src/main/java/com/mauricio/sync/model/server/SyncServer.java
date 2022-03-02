@@ -96,9 +96,6 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
 
     @Override
     public boolean isPasswordValid(String password) {
-        if (!usePassword) {
-            return true;
-        }
         return this.password.equals(password);
     }
 
