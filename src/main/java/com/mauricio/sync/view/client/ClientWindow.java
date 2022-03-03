@@ -3,9 +3,6 @@ package com.mauricio.sync.view.client;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -27,6 +24,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class ClientWindow extends Stage {
     private Label ipLabel;
     private ListView<HBox> fileList;
@@ -42,6 +42,9 @@ public class ClientWindow extends Stage {
         initWindow();
     }
 
+    /**
+     * Load icons for files and folders
+     */
     private void loadIcons() {
         try {
             BufferedImage scaledFile = scaleBuffImage(ImageIO.read(new File("file.png")), 16, 16);
@@ -61,6 +64,9 @@ public class ClientWindow extends Stage {
         }
     }
 
+    /**
+     * Init components
+     */
     private void initWindow(){
         VBox root = new VBox();
         root.setSpacing(10);
@@ -128,10 +134,23 @@ public class ClientWindow extends Stage {
         show();
     }
 
+    /**
+     * Set window listener.
+     *
+     * @param listener
+     */
     public void setListener(IClientWindowListener listener) {
         this.listener = listener;
     }
 
+    /**
+     * Scale buffered image to w, h.
+     *
+     * @param src original image.
+     * @param w width
+     * @param h height
+     * @return scaled image.
+     */
     private BufferedImage scaleBuffImage(BufferedImage src, int w, int h){
         java.awt.Image scaled = src.getScaledInstance(w, h, BufferedImage.SCALE_FAST);
         BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -141,6 +160,11 @@ public class ClientWindow extends Stage {
         return result;
     }
 
+    /**
+     * Display an error dialog.
+     *
+     * @param msg
+     */
     public void showErrorDialog(String msg){
         Platform.runLater(new Runnable() {
             @Override
@@ -153,6 +177,10 @@ public class ClientWindow extends Stage {
         });
     }
 
+    /**
+     * Display an info dialog.
+     * @param msg
+     */
     public void showInfoDialog(String msg){
         Platform.runLater(new Runnable() {
             @Override
@@ -166,6 +194,11 @@ public class ClientWindow extends Stage {
 
     }
 
+    /**
+     * Set ip label text.
+     *
+     * @param text
+     */
     public void setIpLabelText(String text){
         Platform.runLater(new Runnable() {
             @Override
@@ -175,6 +208,13 @@ public class ClientWindow extends Stage {
         });
     }
 
+    /**
+     * Add file to file list.
+     *
+     * @param filename
+     * @param host
+     * @param isDir
+     */
     public void addFileToList(String filename, String host, boolean isDir){
         System.out.println("adding to client window file list");
         Platform.runLater(new Runnable() {
@@ -237,6 +277,13 @@ public class ClientWindow extends Stage {
         });
     }
 
+    /**
+     * Remove file from file list.
+     *
+     * @param filename
+     * @param host
+     * @param isDir
+     */
     public void removeFileFromList(String filename, String host, boolean isDir){
         Platform.runLater(new Runnable() {
             @Override
@@ -272,6 +319,9 @@ public class ClientWindow extends Stage {
         });
     }
 
+    /**
+     * Clear the file list completely.
+     */
     public void clearFileList(){
         Platform.runLater(new Runnable() {
             @Override

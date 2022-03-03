@@ -11,10 +11,19 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class ClientAppController extends Application {
 
+    /**
+     * Main entry point of the client app JavaFX application.
+     *
+     * @param primaryStage the newly created root stage
+     * @throws Exception
+     * @see Application
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
         ClientLauncherWindow launcherWindow = new ClientLauncherWindow();
@@ -133,6 +142,9 @@ public class ClientAppController extends Application {
         });
     }
 
+    /**
+     * Starts the application.
+     */
     public void start(){
         launch();
     }

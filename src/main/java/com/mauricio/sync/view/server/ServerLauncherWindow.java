@@ -9,6 +9,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class ServerLauncherWindow extends Stage {
     private TextField passwordField;
     private IServerLauncherWindowListener listener;
@@ -17,6 +20,9 @@ public class ServerLauncherWindow extends Stage {
         initWindow();
     }
 
+    /**
+     * Init components
+     */
     private void initWindow(){
         VBox root = new VBox();
         root.spacingProperty().set(10);
@@ -89,6 +95,11 @@ public class ServerLauncherWindow extends Stage {
         show();
     }
 
+    /**
+     * Display an error dialog.
+     *
+     * @param msg
+     */
     private void showErrorDialog(String msg){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -96,6 +107,11 @@ public class ServerLauncherWindow extends Stage {
         alert.show();
     }
 
+    /**
+     * Set window listener.
+     *
+     * @param listener
+     */
     public void setListener(IServerLauncherWindowListener listener) {
         this.listener = listener;
     }

@@ -2,6 +2,11 @@ package com.mauricio.sync.model.packets.wrappers;
 
 import com.mauricio.sync.model.packets.IPacket;
 
+/**
+ * Wrapper used to send file data.
+ *
+ * @author Mauricio Rumštajn
+ */
 public class SyncDataPacketWrapper extends PacketWrapper {
 
     public SyncDataPacketWrapper(IPacket packet) {
@@ -9,6 +14,9 @@ public class SyncDataPacketWrapper extends PacketWrapper {
         put("type", "sync_data");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate() {
         if (!containsKey("type") || !containsKey("path")|| !containsKey("data")){
@@ -35,18 +43,38 @@ public class SyncDataPacketWrapper extends PacketWrapper {
         return true;
     }
 
+    /**
+     * Get sync data.
+     *
+     * @return (String) base64 encoded byte array
+     */
     public String getData(){
         return (String) get("data");
     }
 
+    /**
+     * Set sync data.
+     *
+     * @param data (String) base64 encoded byte array
+     */
     public void setData(String data){
         put("data", data);
     }
 
+    /**
+     * Set file path.
+     *
+     * @param path
+     */
     public void setPath(String path){
         put("path", path);
     }
 
+    /**
+     * Get file path.
+     *
+     * @return path
+     */
     public String getPath(){
         return (String) get("path");
     }

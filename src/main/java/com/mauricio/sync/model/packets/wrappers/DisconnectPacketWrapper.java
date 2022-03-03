@@ -2,6 +2,11 @@ package com.mauricio.sync.model.packets.wrappers;
 
 import com.mauricio.sync.model.packets.IPacket;
 
+/**
+ * Wrapper used to disconnect client from server.
+ *
+ * @author Mauricio Rumštajn
+ */
 public class DisconnectPacketWrapper extends PacketWrapper {
 
     public DisconnectPacketWrapper(IPacket packet) {
@@ -9,6 +14,9 @@ public class DisconnectPacketWrapper extends PacketWrapper {
         put("type", "disconnect");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate() {
         if (!containsKey("type")){

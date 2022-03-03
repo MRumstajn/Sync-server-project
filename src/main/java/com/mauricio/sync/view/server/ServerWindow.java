@@ -1,8 +1,6 @@
 package com.mauricio.sync.view.server;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -22,6 +20,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class ServerWindow extends Stage {
     private TabPane tabPane;
     private Label portLabel;
@@ -44,6 +45,9 @@ public class ServerWindow extends Stage {
         initWindow();
     }
 
+    /**
+     * Load icons for files and folders.
+     */
     private void loadIcons() {
         try {
             BufferedImage scaledFile = scaleBuffImage(ImageIO.read(new File("file.png")), 16, 16);
@@ -63,6 +67,9 @@ public class ServerWindow extends Stage {
         }
     }
 
+    /**
+     * Init components
+     */
     private void initWindow(){
         VBox root = new VBox();
         root.setPrefWidth(400);
@@ -207,10 +214,20 @@ public class ServerWindow extends Stage {
         stage.show();
     }
 
+    /**
+     * Set window listener.
+     *
+     * @param listener
+     */
     public void setListener(IServerWindowListener listener) {
         this.listener = listener;
     }
 
+    /**
+     * Set port label text.
+     *
+     * @param text
+     */
     public void setPortLabel(String text){
         Platform.runLater(new Runnable() {
             @Override
@@ -220,6 +237,10 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set status label text.
+     * @param text
+     */
     public void setStatusLabel(String text){
         Platform.runLater(new Runnable() {
             @Override
@@ -229,6 +250,11 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set uptime label text.
+     *
+     * @param text
+     */
     public void setUptimeLabel(String text){
         Platform.runLater(new Runnable() {
             @Override
@@ -238,6 +264,11 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set client count label text.
+     *
+     * @param text
+     */
     public void setClientCountLabel(String text){
         Platform.runLater(new Runnable() {
             @Override
@@ -247,6 +278,11 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set thread count label text.
+     *
+     * @param text
+     */
     public void setThreadCountLabel(String text){
         Platform.runLater(new Runnable() {
             @Override
@@ -256,6 +292,10 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set CPU progress bar percent.
+     * @param percent
+     */
     public void setCPUBarPercent(double percent){
         Platform.runLater(new Runnable() {
             @Override
@@ -265,6 +305,10 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set memory progress bar percent.
+     * @param percent
+     */
     public void setMemoryBarPercent(double percent){
         Platform.runLater(new Runnable() {
             @Override
@@ -274,6 +318,10 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Set network progress bar percent.
+     * @param percent
+     */
     public void setNetworkBarPercent(double percent){
         Platform.runLater(new Runnable() {
             @Override
@@ -283,6 +331,13 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Add client to clients list.
+     *
+     * @param username
+     * @param ip
+     * @param port
+     */
     public void addClientToList(String username, String ip, int port){
         Platform.runLater(new Runnable() {
             @Override
@@ -305,6 +360,11 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Remove client from clients list.
+     *
+     * @param username
+     */
     public void removeClientFromList(String username){
         Platform.runLater(new Runnable() {
             @Override
@@ -323,6 +383,13 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Add file to file list.
+     *
+     * @param filename
+     * @param host
+     * @param isDir
+     */
     public void addFileToList(String filename, String host, boolean isDir){
         Platform.runLater(new Runnable() {
             @Override
@@ -352,6 +419,13 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Remove file from file list.
+     *
+     * @param filename
+     * @param host
+     * @param isDir
+     */
     public void removeFileFromList(String filename, String host, boolean isDir){
         Platform.runLater(new Runnable() {
             @Override
@@ -387,6 +461,11 @@ public class ServerWindow extends Stage {
         });
     }
 
+    /**
+     * Display an error dialog.
+     *
+     * @param msg
+     */
     private void showErrorDialog(String msg){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -394,6 +473,14 @@ public class ServerWindow extends Stage {
         alert.show();
     }
 
+    /**
+     * Scale buffered image to w,h.
+     *
+     * @param src original image.
+     * @param w width
+     * @param h height
+     * @return scaled image.
+     */
     private BufferedImage scaleBuffImage(BufferedImage src, int w, int h){
         java.awt.Image scaled = src.getScaledInstance(w, h, BufferedImage.SCALE_FAST);
         BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);

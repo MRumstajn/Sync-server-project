@@ -12,6 +12,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class SyncClientDeviceHandler implements Runnable{
     private ISyncServer server;
     private Socket client;
@@ -27,6 +30,9 @@ public class SyncClientDeviceHandler implements Runnable{
         this.deviceID = deviceID;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run() {
         try {
@@ -153,10 +159,22 @@ public class SyncClientDeviceHandler implements Runnable{
         }
     }
 
+    /**
+     * Send packet to client.
+     *
+     * @param packet
+     * @throws IOException
+     */
     public void sendPacket(IPacket packet) throws IOException {
         out.writeUTF(packet.stringify());
     }
 
+    /**
+     * Create error packet.
+     *
+     * @param msg
+     * @return packet
+     */
     private ErrorPacketWrapper createErrorPacket(String msg){
         ErrorPacketWrapper packet = (ErrorPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("error", packetParser.getPacketClass());
@@ -164,6 +182,12 @@ public class SyncClientDeviceHandler implements Runnable{
         return packet;
     }
 
+    /**
+     * Validate authentication data and send response.
+     *
+     * @param authPacket
+     * @throws IOException
+     */
     private void authDevice(AuthPacketWrapper authPacket) throws IOException {
         if (!authPacket.validate()) {
             sendPacket(createErrorPacket("Invalid auth packet"));
@@ -184,6 +208,12 @@ public class SyncClientDeviceHandler implements Runnable{
         sendPacket(authResponsePacket);
     }
 
+    /**
+     * Relay data packet to bridge receiver.
+     *
+     * @param dataPacket
+     * @throws IOException
+     */
     private void relayDataPacket(SyncDataPacketWrapper dataPacket) throws IOException {
         String base64 = dataPacket.getData();
         byte[] received = Base64.getDecoder().decode(base64);

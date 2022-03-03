@@ -12,6 +12,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class ServerSettingsWindow extends Stage {
     private CheckBox userPasswordCheckBox;
     private TextField passwordField;
@@ -22,6 +25,9 @@ public class ServerSettingsWindow extends Stage {
         initWindow();
     }
 
+    /**
+     * Init components
+     */
     private void initWindow(){
         VBox root = new VBox();
         root.setPadding(new Insets(10, 10, 10, 10));
@@ -57,6 +63,11 @@ public class ServerSettingsWindow extends Stage {
         show();
     }
 
+    /**
+     * Set window listener.
+     *
+     * @param listener
+     */
     public void setListener(IServerSettingsWindowListener listener) {
         this.listener = listener;
     }

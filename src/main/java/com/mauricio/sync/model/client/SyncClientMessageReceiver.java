@@ -3,7 +3,6 @@ package com.mauricio.sync.model.client;
 import com.mauricio.sync.model.packets.IPacket;
 import com.mauricio.sync.model.packets.parsers.IPacketParser;
 import com.mauricio.sync.model.packets.wrappers.*;
-import com.mauricio.sync.model.server.SyncClientDevice;
 
 import java.io.*;
 import java.net.Socket;
@@ -11,6 +10,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class SyncClientMessageReceiver implements Runnable{
     private ISyncClient client;
     private Socket clientSocket;
@@ -23,6 +25,9 @@ public class SyncClientMessageReceiver implements Runnable{
         this.packetParser = packetParser;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run() {
         try {

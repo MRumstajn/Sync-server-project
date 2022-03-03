@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class SyncServer extends EventEmitter<ISyncServerListener> implements ISyncServer{
     private ServerSocket serverSocket;
     private int port;
@@ -41,6 +44,10 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         relayRouteMap = new HashMap<>();
     }
 
+    /**
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void start() throws IOException {
         serverSocket = new ServerSocket(port);
@@ -63,6 +70,10 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void stop() throws IOException{
         serverSocket.close();
@@ -71,41 +82,65 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getPort() {
         return port;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean usesPassword() {
         return usePassword;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setIsUsingPassword(boolean isUsing) {
         usePassword = isUsing;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getPassword() {
         return password;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isPasswordValid(String password) {
         return this.password.equals(password);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<SyncClientDevice> getClients() {
         return clients;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SyncClientDevice getFileHost(String path) {
         for (SyncClientDevice device : clients) {
@@ -118,6 +153,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SyncClientDevice getDeviceWithID(int id) {
         for (SyncClientDevice client : clients) {
@@ -128,6 +166,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SyncClientDevice getDeviceWithUsername(String username) {
         for (SyncClientDevice client : clients) {
@@ -138,6 +179,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addDevice(SyncClientDevice device){
         clients.add(device);
@@ -146,6 +190,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void removeDevice(SyncClientDevice device){
         // remove all files linked to the client
@@ -175,6 +222,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDeviceName(SyncClientDevice device, String name){
         if (isNameUsed(name)) {
@@ -186,6 +236,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDeviceAuth(SyncClientDevice device){
         device.setAuthenticated(true);
@@ -194,6 +247,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addFile(SyncClientDevice device, String path, boolean isDir) {
         device.addFile(path, isDir);
@@ -202,6 +258,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void removeFile(SyncClientDevice device, String path, boolean isDir) {
         device.removeFile(path);
@@ -210,6 +269,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void syncStarted(String file, SyncClientDevice cl1, SyncClientDevice cl2) {
         for (ISyncServerListener listener : getListeners()) {
@@ -217,6 +279,9 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void syncCompleted(String file, SyncClientDevice cl1, SyncClientDevice cl2) {
         for (ISyncServerListener listener : getListeners()) {
@@ -224,25 +289,45 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addRelayRoute(SyncClientDevice sender, SyncClientDevice receiver) {
         relayRouteMap.put(sender, receiver);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void removeRelayRoute(SyncClientDevice sender) {
         relayRouteMap.remove(sender);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SyncClientDevice getRelayRoute(SyncClientDevice sender) {
         return relayRouteMap.get(sender);
     }
 
+    /**
+     * Get number of connected clients.
+     *
+     * @return number of clients.
+     */
     public int getConnectedClientCount(){
         return clients.size();
     }
 
+    /**
+     * Check if name is used.
+     *
+     * @param username
+     * @return is used.
+     */
     private boolean isNameUsed(String username){
         for (SyncClientDevice client : clients) {
             if (!client.isAuthenticated()){
@@ -255,6 +340,14 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
         return false;
     }
 
+    /**
+     * Notify all clients about a file being removed.
+     *
+     * @param filename
+     * @param host
+     * @param isDir
+     * @throws IOException
+     */
     private void broadcastRemoveFilesPacket(String filename, String host, boolean isDir) throws IOException {
         RemoveFilesPacketWrapper removeFilePacket = (RemoveFilesPacketWrapper)
                 PacketWrapperFactory.createPacketWrapper("remove_files", packetParser.getPacketClass());

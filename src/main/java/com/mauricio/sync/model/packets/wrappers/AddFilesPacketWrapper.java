@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Wrapper used to add files to the server or client caches.
+ *
+ * @author Mauricio Rumštajn
+ */
 public class AddFilesPacketWrapper extends PacketWrapper{
 
     public AddFilesPacketWrapper(IPacket packet) {
@@ -14,6 +19,9 @@ public class AddFilesPacketWrapper extends PacketWrapper{
         put("type", "add_files");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate() {
         if (!containsKey("type") || !containsKey("files")){
@@ -62,6 +70,12 @@ public class AddFilesPacketWrapper extends PacketWrapper{
         return true;
     }
 
+    /**
+     * Add file to list.
+     *
+     * @param path path to file.
+     * @param isDir whether file is a directory.
+     */
     public void addFile(String path, boolean isDir){
         List<Map<String, Object>> fileList = getFiles();
         if (fileList == null){
@@ -77,10 +91,23 @@ public class AddFilesPacketWrapper extends PacketWrapper{
     // only used when sending from server to client
     // because the server already knows which client sent the packet
     // and the client needs to know which client the packet was relayed from
+
+    /**
+     * Set optional host field.
+     * only used when sending from server to client because the server already knows which client sent the packet
+     * and the client needs to know which client the packet was relayed from.
+     *
+     * @param host
+     */
     public void setHost(String host){
         put("host", host);
     }
 
+    /**
+     * Get file list.
+     *
+     * @return list
+     */
     public List<Map<String, Object>> getFiles(){
         return (List<Map<String, Object>>) get("files");
     }

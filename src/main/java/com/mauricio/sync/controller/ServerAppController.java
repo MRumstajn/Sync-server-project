@@ -11,9 +11,19 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class ServerAppController extends Application {
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
+    /**
+     * Main entry point of the client app JavaFX application.
+     *
+     * @param primaryStage the newly created root stage
+     * @throws Exception
+     * @see Application
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
             ServerLauncherWindow launcherWindow = new ServerLauncherWindow();
@@ -158,10 +168,19 @@ public class ServerAppController extends Application {
             });
     }
 
+    /**
+     * Starts the application.
+     */
     public void start(){
         launch();
     }
 
+    /**
+     * Returns text parameter with a time prefix.
+     *
+     * @param text
+     * @return
+     */
     private String getTimedText(String text){
         LocalDateTime time = LocalDateTime.now();
         return "[" + time.format(dtf) + "] " + text;

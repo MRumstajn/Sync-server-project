@@ -2,6 +2,11 @@ package com.mauricio.sync.model.packets.wrappers;
 
 import com.mauricio.sync.model.packets.IPacket;
 
+/**
+ * Wrapper used to send error.
+ *
+ * @author Mauricio Rumštajn
+ */
 public class ErrorPacketWrapper extends PacketWrapper {
 
     public ErrorPacketWrapper(IPacket packet) {
@@ -9,6 +14,9 @@ public class ErrorPacketWrapper extends PacketWrapper {
         put("type", "error");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate() {
         if (!containsKey("type") || !containsKey("msg")){
@@ -28,10 +36,20 @@ public class ErrorPacketWrapper extends PacketWrapper {
         return true;
     }
 
+    /**
+     * Set error message.
+     *
+     * @param msg
+     */
     public void setErrorMsg(String msg){
         put("msg", msg);
     }
 
+    /**
+     * Get error message.
+     *
+     * @return msg
+     */
     public String getErrorMsg(){
         return (String) get("msg");
     }

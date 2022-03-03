@@ -5,6 +5,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class JSONPacketParser implements IPacketParser<JSONPacket>{
     private JSONParser parser;
 
@@ -12,6 +15,10 @@ public class JSONPacketParser implements IPacketParser<JSONPacket>{
         parser = new JSONParser();
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JSONPacket parse(String rawPacket) {
         JSONPacket packet = null;
@@ -23,6 +30,9 @@ public class JSONPacketParser implements IPacketParser<JSONPacket>{
         return packet;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Class<JSONPacket> getPacketClass() {
         return JSONPacket.class;

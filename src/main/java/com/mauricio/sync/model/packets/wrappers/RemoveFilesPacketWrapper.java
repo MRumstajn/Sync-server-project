@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Wrapper used to remove registered files from server or client.
+ *
+ * @author Mauricio Rumštajn
+ */
 public class RemoveFilesPacketWrapper extends PacketWrapper{
 
     public RemoveFilesPacketWrapper(IPacket packet) {
@@ -14,6 +19,9 @@ public class RemoveFilesPacketWrapper extends PacketWrapper{
         put("type", "remove_files");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate() {
         if (!containsKey("type") || !containsKey("files")){
@@ -62,6 +70,12 @@ public class RemoveFilesPacketWrapper extends PacketWrapper{
         return true;
     }
 
+    /**
+     * Add file to list.
+     *
+     * @param path path of file.
+     * @param isDir is file a dir.
+     */
     public void addFile(String path, boolean isDir){
         List<Map<String, Object>> fileList = getFiles();
         if (fileList == null){
@@ -74,13 +88,21 @@ public class RemoveFilesPacketWrapper extends PacketWrapper{
         put("files", fileList);
     }
 
-    // only used when sending from server to client
-    // because the server already knows which client sent the packet
-    // and the client needs to know which client the packet was relayed from
+    /**
+     * Set optional host field. only used when sending from server to client because the server already knows
+     * which client sent the packet and the client needs to know which client the packet was relayed from.
+     *
+     * @param host
+     */
     public void setHost(String host){
         put("host", host);
     }
 
+    /**
+     * Get list of files.
+     *
+     * @return
+     */
     public List<Map<String, Object>> getFiles(){
         return (List<Map<String, Object>>) get("files");
     }

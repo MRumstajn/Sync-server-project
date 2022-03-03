@@ -2,8 +2,19 @@ package com.mauricio.sync.model.packets.wrappers;
 
 import com.mauricio.sync.model.packets.IPacket;
 
+/**
+ *
+ * @author Mauricio Rumštajn
+ */
 public class PacketWrapperFactory {
 
+    /**
+     * Produces a {@link PacketWrapper} that wraps the specified packet class.
+     *
+     * @param type id of packet.
+     * @param packetClass packet class to wrap.
+     * @return the packet wrapper or null if type is invalid.
+     */
     public static PacketWrapper createPacketWrapper(String type, Class<? extends IPacket> packetClass){
         PacketWrapper wrapper = null;
         try {

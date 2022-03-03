@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.security.InvalidParameterException;
 import java.util.*;
 
+/**
+ * @author Mauricio Rumštajn
+ */
 public class SyncClient extends EventEmitter<ISyncClientListener> implements ISyncClient {
     private Socket clientSocket;
     private DataInputStream in;
@@ -41,6 +44,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         serverFilesMap = new HashMap<>();
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void connect() throws IOException {
         clientSocket = new Socket(ip, port);
@@ -50,6 +58,7 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         in = new DataInputStream(clientSocket.getInputStream());
         out = new DataOutputStream(clientSocket.getOutputStream());
         fileObserver.addListener(new ISyncFileObserverListener() {
+
             @Override
             public void onFileAdded(String filename, boolean isDir) {
                 try {
@@ -82,6 +91,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         sendPacket(authPacket);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void disconnect() throws IOException {
         clientSocket.close();
@@ -90,11 +104,22 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void sendPacket(IPacket packet) throws IOException {
         out.writeUTF(packet.stringify());
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     *
+     */
     @Override
     public void sendFile(String path, boolean sendEof) throws IOException {
         System.out.println("Sending file " + path + "...");
@@ -132,6 +157,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         in.close();
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void sendDir(String path) throws IOException {
         List<String> filePaths = fileObserver.deepListFiles(fileObserver.getFile(path),
@@ -145,21 +175,37 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public String getServerIP() {
         return ip;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public int getServerPort() {
         return port;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Boolean> getFileList() {
         return serverFilesMap;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void setAuthenticated(boolean status) {
         System.out.println("AUTHY");
@@ -171,33 +217,61 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAuthenticated() {
         return authenticated;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     public boolean doesFileExist(String filename) {
         return fileObserver.doesFileExist(filename);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     public boolean doesDirExist(String dirname) {
         return fileObserver.doesDirectoryExist(dirname);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     public File getFile(String filename) {
         return fileObserver.getFile(filename);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public File getObservedDir() {
         return fileObserver.getObservedDir();
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public String getFullPath(String filename) {
         return fileObserver.getFullPath(filename);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void addFile(String file, String host, boolean isDir) {
         serverFilesMap.put(file, isDir);
@@ -206,6 +280,10 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void removeFile(String file, String host, boolean isDir) {
         serverFilesMap.remove(file);
@@ -214,6 +292,10 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void fileSyncStarted(String file, boolean isDir) {
         for (ISyncClientListener listener : getListeners()) {
@@ -221,6 +303,10 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void fileSyncCompleted(String file, boolean isDir) {
         for (ISyncClientListener listener : getListeners()) {
@@ -228,16 +314,30 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void setObservedDir(File dir) {
         fileObserver.setObservedDir(dir);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void writeBuffer(byte[] buff, String path) throws IOException {
         fileObserver.writeBuffer(buff, path);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void registerFiles() throws IOException {
         AddFilesPacketWrapper addFilesPacket = (AddFilesPacketWrapper)
@@ -257,6 +357,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         sendPacket(addFilesPacket);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void unregisterRemovedFiles() throws IOException {
         RemoveFilesPacketWrapper removeFilesPacket = (RemoveFilesPacketWrapper)
@@ -275,6 +380,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         sendPacket(removeFilesPacket);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void downloadFile(String filename, String host, boolean isDir) throws IOException {
         SyncFilePacketWrapper syncPacket = (SyncFilePacketWrapper)
@@ -284,6 +394,11 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         sendPacket(syncPacket);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @throws IOException
+     */
     @Override
     public void fetchFileList() throws IOException {
         ListFilesPacketWrapper listPacket = (ListFilesPacketWrapper)
@@ -291,6 +406,10 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         sendPacket(listPacket);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void serverFileListed(String filename, String host, boolean isDir) {
         for (ISyncClientListener listener : getListeners()) {
@@ -298,6 +417,10 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void serverFileUnlisted(String filename, String host, boolean isDir) {
         for (ISyncClientListener listener : getListeners()) {
@@ -305,6 +428,10 @@ public class SyncClient extends EventEmitter<ISyncClientListener> implements ISy
         }
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void receivedListPacket() {
         for (ISyncClientListener listener : getListeners()) {

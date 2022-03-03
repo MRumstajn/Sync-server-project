@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Wrapper used to request and list registered files from the server.
+ *
+ * @author Mauricio Rumštajn
+ */
 public class ListFilesPacketWrapper extends PacketWrapper {
 
     public ListFilesPacketWrapper(IPacket packet) {
@@ -17,6 +22,9 @@ public class ListFilesPacketWrapper extends PacketWrapper {
         * */
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate() {
         if (!containsKey("type")) {
@@ -76,16 +84,14 @@ public class ListFilesPacketWrapper extends PacketWrapper {
         return true;
     }
 
+    /**
+     * Add file to list.
+     *
+     * @param path path to file.
+     * @param host host of file.
+     * @param isDir is file a dir.
+     */
     public void addFile(String path, String host, boolean isDir) {
-        /*List<Map<String, Object>> fileList = getFiles();
-        if (fileList == null) {
-            fileList = new ArrayList<>();
-        }
-        Map<String, Object> fileMap = new HashMap<>();
-        fileMap.put("path", path);
-        fileMap.put("is_dir", isDir);
-        fileList.add(fileMap);
-        put("files", fileList);*/
         List<Map<String, Object>> fileList = getFiles();
         if (fileList == null){
             fileList = new ArrayList<>();
@@ -98,8 +104,12 @@ public class ListFilesPacketWrapper extends PacketWrapper {
         put("files", fileList);
     }
 
+    /**
+     * Get file list.
+     *
+     * @return list
+     */
     public List<Map<String, Object>> getFiles() {
-        //return (List<Map<String, Object>>) get("files");
         return (List<Map<String, Object>>) get("files");
     }
 }
