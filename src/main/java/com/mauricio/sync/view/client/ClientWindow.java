@@ -142,17 +142,28 @@ public class ClientWindow extends Stage {
     }
 
     public void showErrorDialog(String msg){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setContentText(msg);
-        alert.show();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setContentText(msg);
+                alert.show();
+            }
+        });
     }
 
     public void showInfoDialog(String msg){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Info");
-        alert.setContentText(msg);
-        alert.show();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Info");
+                alert.setContentText(msg);
+                alert.show();
+            }
+        });
+
     }
 
     public void setIpLabelText(String text){
@@ -193,6 +204,7 @@ public class ClientWindow extends Stage {
                 downloadBtn.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
+                        downloadBtn.setDisable(true);
                         // get index of item
                         int index = fileList.getItems().indexOf(row);
                         // get info about file on that item
