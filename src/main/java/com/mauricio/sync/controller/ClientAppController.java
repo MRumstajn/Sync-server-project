@@ -41,6 +41,16 @@ public class ClientAppController extends Application {
                             clientWindow.showErrorDialog("Unable to download file " + file + " from client " + host);
                         }
                     }
+
+                    @Override
+                    public void onWindowClose() {
+                        // unregister all files in client cache and close client
+                        try {
+                            client.disconnect();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 });
 
                 client.addListener(new ISyncClientListener() {

@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -118,6 +119,12 @@ public class ClientWindow extends Stage {
 
         Scene scene = new Scene(root);
         setScene(scene);
+        setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                listener.onWindowClose();
+            }
+        });
         show();
     }
 

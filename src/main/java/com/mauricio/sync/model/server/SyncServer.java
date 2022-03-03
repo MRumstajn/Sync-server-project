@@ -3,6 +3,8 @@ package com.mauricio.sync.model.server;
 import com.mauricio.sync.model.events.EventEmitter;
 import com.mauricio.sync.model.packets.parsers.IPacketParser;
 import com.mauricio.sync.model.packets.parsers.PacketParserFactory;
+import com.mauricio.sync.model.packets.wrappers.PacketWrapperFactory;
+import com.mauricio.sync.model.packets.wrappers.RemoveFilesPacketWrapper;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -136,7 +138,21 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
 
     @Override
     public void removeDevice(SyncClientDevice device){
+        // remove all files linked to the client
+        System.out.println("device file map size: " + device.getFiles().size());
+        for (String s : device.getFiles().keySet()) {
+            System.out.println("Server removing file " + s);
+            try {
+                broadcastRemoveFilesPacket(s, device.getName(), device.getFiles().get(s));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            for (ISyncServerListener listener : getListeners()) {
+                listener.onRemoveFile(device, s, device.getFiles().get(s));
+            }
+        }
         clients.remove(device);
+
         for (ISyncServerListener listener : getListeners()) {
             listener.onClientDisconnect(device);
         }
@@ -220,5 +236,15 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
             }
         }
         return false;
+    }
+
+    private void broadcastRemoveFilesPacket(String filename, String host, boolean isDir) throws IOException {
+        RemoveFilesPacketWrapper removeFilePacket = (RemoveFilesPacketWrapper)
+                PacketWrapperFactory.createPacketWrapper("remove_files", packetParser.getPacketClass());
+        removeFilePacket.addFile(filename, isDir);
+        removeFilePacket.setHost(host);
+        for (SyncClientDevice client : clients) {
+            client.getHandler().sendPacket(removeFilePacket);
+        }
     }
 }

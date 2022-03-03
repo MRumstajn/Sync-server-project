@@ -5,4 +5,5 @@ import java.io.File;
 public interface IClientWindowListener {
     void onSetSyncDir(File dir);
     void onDownloadFile(String file, boolean isDir, String host);
+    void onWindowClose();
 }
