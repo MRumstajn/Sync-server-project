@@ -64,6 +64,7 @@ public class ServerAppController extends Application {
                     server.addListener(new ISyncServerListener() {
                         @Override
                         public void onServerStart() {
+                            serverWindow.setPortLabel(String.valueOf(server.getPort()));
                             serverWindow.setStatusLabel("Online");
                             logWindow.appendToConsole(getTimedText("server started"));
                         }
@@ -76,12 +77,15 @@ public class ServerAppController extends Application {
 
                         @Override
                         public void onClientConnect(SyncClientDevice client) {
-                            logWindow.appendToConsole(getTimedText("new connection from " + client.getClientSocket().getInetAddress()));
+                            serverWindow.setClientCountLabel(String.valueOf(server.getConnectedClientCount()));
+                            logWindow.appendToConsole(getTimedText("new connection from " +
+                                    client.getClientSocket().getInetAddress()));
                         }
 
                         @Override
                         public void onClientDisconnect(SyncClientDevice client) {
                             serverWindow.removeClientFromList(client.getName());
+                            serverWindow.setClientCountLabel(String.valueOf(server.getConnectedClientCount()));
                             logWindow.appendToConsole(getTimedText("client " + client.getClientSocket().getInetAddress() + " disconnected"));
                         }
 
