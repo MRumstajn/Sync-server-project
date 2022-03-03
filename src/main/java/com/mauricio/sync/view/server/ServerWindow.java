@@ -288,9 +288,18 @@ public class ServerWindow extends Stage {
             @Override
             public void run() {
                 HBox row = new HBox();
+                Button disconnectButton = new Button("Disconnect");
+                disconnectButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        int index = clientList.getItems().indexOf(row);
+                        Label usernameLabel = (Label) clientList.getItems().get(index).getChildren().get(0);
+                        listener.onClientDisconnectButtonClicked(usernameLabel.getText());
+                    }
+                });
                 row.getChildren().add(new Label(username));
                 row.getChildren().add(new Label("(" + ip + ":" + port + ")"));
-                row.getChildren().add(new Button("Disconnect"));
+                row.getChildren().add(disconnectButton);
                 clientList.getItems().add(row);
             }
         });

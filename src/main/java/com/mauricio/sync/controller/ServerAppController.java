@@ -59,6 +59,11 @@ public class ServerAppController extends Application {
                                 }
                             });
                         }
+
+                        @Override
+                        public void onClientDisconnectButtonClicked(String username) {
+                            server.removeDevice(server.getDeviceWithUsername(username));
+                        }
                     });
 
                     server.addListener(new ISyncServerListener() {

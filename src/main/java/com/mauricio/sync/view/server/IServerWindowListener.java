@@ -4,4 +4,5 @@ public interface IServerWindowListener {
     void onStopButtonClicked();
     void onLogButtonClicked();
     void onSettingsButtonClicked();
+    void onClientDisconnectButtonClicked(String username);
 }

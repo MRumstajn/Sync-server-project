@@ -129,6 +129,16 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
     }
 
     @Override
+    public SyncClientDevice getDeviceWithUsername(String username) {
+        for (SyncClientDevice client : clients) {
+            if (client.getName() == username){
+                return client;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void addDevice(SyncClientDevice device){
         clients.add(device);
         for (ISyncServerListener listener : getListeners()) {
@@ -149,6 +159,13 @@ public class SyncServer extends EventEmitter<ISyncServerListener> implements ISy
             }
             for (ISyncServerListener listener : getListeners()) {
                 listener.onRemoveFile(device, s, device.getFiles().get(s));
+            }
+        }
+        if (!device.getClientSocket().isClosed()){
+            try {
+                device.getClientSocket().close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         clients.remove(device);

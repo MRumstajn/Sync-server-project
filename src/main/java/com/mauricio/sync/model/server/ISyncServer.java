@@ -15,6 +15,7 @@ public interface ISyncServer {
     List<SyncClientDevice> getClients();
     SyncClientDevice getFileHost(String path);
     SyncClientDevice getDeviceWithID(int id);
+    SyncClientDevice getDeviceWithUsername(String username);
     void addDevice(SyncClientDevice device);
     void removeDevice(SyncClientDevice device);
     void setDeviceName(SyncClientDevice device, String name);
